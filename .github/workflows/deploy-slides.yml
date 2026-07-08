@@ -1,17 +1,32 @@
-# Builds the personal slide decks and publishes them to GitHub Pages.
+# Builds the personal slide decks of EVERY branch and publishes them to GitHub Pages:
+#   - master           → https://<user>.github.io/reveal.js/
+#   - any other branch → https://<user>.github.io/reveal.js/<branch>/
+# This makes Claude Code Web branches previewable online before they are merged.
+#
+# Every run re-enumerates the repo's branches and rebuilds the whole site from them, so
+# the published site only ever contains branches that still exist — the `delete` trigger
+# fires a redeploy as soon as a branch is removed. This works because build-decks.mjs
+# emits a site with all-relative URLs, so a deck renders identically at the site root
+# and under a <branch>/ subdirectory.
 #
 # The framework files in dist/ are committed and published as-is (no framework rebuild
 # here): what goes online is exactly what was tested locally. The build step only
 # type-checks the project, assembles _site/ and compiles the d3 figure sources
 # (assets/<deck>/*.ts) — see scripts/build-decks.mjs and vite.config.decks.ts.
 #
-# One-time repository setup: Settings → Pages → Build and deployment → Source:
-# "GitHub Actions".
+# One-time repository setup:
+#   - Settings → Pages → Build and deployment → Source: "GitHub Actions".
+#   - Settings → Environments → github-pages → Deployment branches and tags:
+#     "No restriction" — otherwise deployments triggered by pushes to non-master
+#     branches are rejected by the environment's protection rule.
 name: Deploy slides to GitHub Pages
 
 on:
   push:
-    branches: [master]
+    branches: ['**']
+  # Branch deleted → redeploy without it (this event always runs the workflow as
+  # defined on the default branch)
+  delete:
   workflow_dispatch:
 
 permissions:
@@ -19,7 +34,9 @@ permissions:
   pages: write
   id-token: write
 
-# One deployment at a time; let in-flight deployments finish
+# One deployment at a time; let in-flight deployments finish. Since every run publishes
+# every branch, superseded queued runs are safe to collapse (GitHub keeps only the
+# latest pending run in the group).
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -29,16 +46,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Every branch gets built, not just the pushed one
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
-      - run: npm run build:decks
+      - name: Build every branch into the combined site
+        run: |
+          set -eu
+          site="$RUNNER_TEMP/site"
+          mkdir -p "$site"
+
+          # master first (published at the site root), then every other origin branch
+          # (each published under its own <branch>/ subdirectory).
+          others="$(git for-each-ref --format='%(refname:lstrip=3)' refs/remotes/origin \
+                      | grep -vx -e HEAD -e master || true)"
+          for branch in master $others; do
+            echo "::group::Building branch: $branch"
+            wt="$RUNNER_TEMP/worktree/$branch"
+            mkdir -p "$(dirname "$wt")"
+            git worktree add --detach "$wt" "origin/$branch"
+            if (cd "$wt" && npm ci && npm run build:decks); then
+              if [ "$branch" = master ]; then dest="$site"; else dest="$site/$branch"; fi
+              mkdir -p "$dest"
+              cp -R "$wt/_site/." "$dest/"
+            elif [ "$branch" = master ]; then
+              echo "::error::master failed to build — aborting the deployment."
+              exit 1
+            else
+              echo "::warning::Branch $branch failed to build; it is left out of this deployment."
+            fi
+            git worktree remove --force "$wt"
+            echo "::endgroup::"
+          done
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: ${{ runner.temp }}/site
 
   deploy:
     needs: build

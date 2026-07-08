@@ -94,8 +94,12 @@ the file and add its `@include` line.
 static site into `_site/` (gitignored) and compiles each figure `.ts` to a standalone `.js`
 bundle (`scripts/build-decks.mjs` + `vite.config.decks.ts`; the committed `dist/` is copied
 as-is, never rebuilt at publish time). `.github/workflows/deploy-slides.yml` runs this on
-every push to `master` and deploys `_site/` to GitHub Pages (repo setting required once:
-Settings → Pages → Source: "GitHub Actions").
+every push to *any* branch (and on branch deletion) and deploys the combined result to
+GitHub Pages: `master` at the site root, every other branch under `<branch>/` — so Claude
+Code Web work branches are previewable online before merging. Each run rebuilds all
+existing branches, so deleted branches drop out of the published site automatically.
+One-time repo settings: Settings → Pages → Source: "GitHub Actions", and Settings →
+Environments → `github-pages` → Deployment branches and tags: "No restriction".
 
 ## Commands
 
