@@ -65,8 +65,10 @@ Common choice : multivariate Normal distributions parameterized by a mean vector
 			]'></div>
 	<script type="module" src="assets/optimization_cem/objective_surface_3d.ts"></script>
 
+	<!-- Légende : visible seulement pendant la vue « focus optimum » (current-visible).
+			Le span vide d'indice 1 n'existe que pour déclencher la vue de dessus. -->
 	<p style="font-size: 40%; color: #888888; margin: 0.4em 0 0 0;">
-		Drag to rotate, scroll to zoom<span class="fragment" data-fragment-index="0"> — the global minimum $f(1, 1) = 0$ appears in red</span><span class="fragment" data-fragment-index="1"> — seen from above: the level curves of $f$</span>
+		<span class="fragment current-visible" data-fragment-index="0">The global minimum $f(1, 1) = 0$ is shown in red</span><span class="fragment" data-fragment-index="1"></span>
 	</p>
 
 	<aside class="notes">
