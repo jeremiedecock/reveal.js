@@ -41,7 +41,10 @@ Common choice : multivariate Normal distributions parameterized by a mean vector
 
 	<!-- Surface 3D interactive (three.js) : glisser pour tourner, molette pour zoomer.
 			Figure paramétrée par les attributs data-* — voir l'en-tête de
-			assets/optimization_cem/objective_surface_3d.ts pour la liste complète. -->
+			assets/optimization_cem/objective_surface_3d.ts pour la liste complète.
+			data-views (piloté par les fragments de la slide, ici celui de la légende) :
+			vue 0 = surface seule en rotation automatique ; vue 1 (fragment 0 visible) =
+			l'optimum apparaît et la caméra fait un focus dessus en ~2 s. -->
 	<div class="r-stretch objective-surface-3d"
 			data-expression="(1 - x)**2 + 100 * (y - x**2)**2"
 			data-x-domain="-2 2"
@@ -50,11 +53,15 @@ Common choice : multivariate Normal distributions parameterized by a mean vector
 			data-color-scale="log"
 			data-colormap="plasma"
 			data-camera="-120 30"
-			data-optimum="1 1"></div>
+			data-optimum="1 1"
+			data-views='[
+				{ "autoRotate": true, "zoom": 1 },
+				{ "optimum": true, "camera": [60, 40], "zoom": 1.8, "target": [1, 1], "duration": 2 }
+			]'></div>
 	<script type="module" src="assets/optimization_cem/objective_surface_3d.ts"></script>
 
 	<p style="font-size: 40%; color: #888888; margin: 0.4em 0 0 0;">
-		Drag to rotate, scroll to zoom — the global minimum $f(1, 1) = 0$ is shown in red
+		Drag to rotate, scroll to zoom<span class="fragment" data-fragment-index="0"> — the global minimum $f(1, 1) = 0$ appears in red</span>
 	</p>
 
 	<aside class="notes">

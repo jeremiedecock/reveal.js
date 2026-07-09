@@ -38,11 +38,38 @@
 //                         affiché en (x, y, f(x, y)) ; absent : rien
 //   data-x-label / data-y-label / data-z-label
 //                         étiquettes des axes         (défauts : "x₁", "x₂", "f(x₁, x₂)")
+//   data-views            JSON : liste de « vues » pilotées par les fragments reveal.js
+//                         de la <section> — views[0] = état initial, views[k+1] = état
+//                         quand le fragment d'indice k est visible (la navigation
+//                         arrière ramène aux vues précédentes). Champs d'une vue, tous
+//                         optionnels :
+//                           optimum    bool — montre le point de l'optimum (défaut : caché)
+//                           autoRotate bool — rotation automatique (défaut : désactivée)
+//                           camera     [azimut, élévation] en degrés
+//                           zoom       même convention que data-zoom
+//                           target     [x, y] point visé par la caméra (coordonnées des
+//                                      données ; défaut : centre de la boîte)
+//                           duration   durée en secondes de la transition animée vers
+//                                      cette vue (défaut : 2 ; 0 = changement immédiat)
+//                         Quand data-views est présent, data-auto-rotate est ignoré
+//                         (chaque vue décide) et l'optimum n'est affiché que par les
+//                         vues qui le demandent. Une interaction de l'utilisateur
+//                         interrompt transition et rotation en cours.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as d3 from 'd3';
 
 type ScaleKind = 'linear' | 'log';
+
+/** Une « vue » de data-views — voir la doc des attributs en tête de fichier. */
+interface View {
+	optimum?: boolean;
+	autoRotate?: boolean;
+	camera?: [number, number];
+	zoom?: number;
+	target?: [number, number];
+	duration?: number;
+}
 
 // Demi-dimensions de la « boîte » dans laquelle la surface est normalisée
 // (rapport 2 × 2 × 1.4, proche du box aspect 4:4:3 de matplotlib).
@@ -56,6 +83,7 @@ const LABEL_COLOR = '#000000';
 const OPTIMUM_COLOR = 0xff0000; // rouge = optimum, comme les élites des autres figures
 const TICK_H = 0.075;          // hauteur (en unités monde) des étiquettes de graduations
 const AXIS_LABEL_H = 0.105;    // ... et des étiquettes d'axes
+const BASE_DIST = 5.7;         // distance caméra correspondant à zoom = 1
 
 const colormaps: Record<string, (t: number) => string> = {
 	plasma: d3.interpolatePlasma,
@@ -223,10 +251,11 @@ function setupFigure(container: HTMLElement): void {
 	scene.add(new THREE.Mesh(surfaceGeometry,
 		new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide })));
 
-	// -- Point de l'optimum global (optionnel)
+	// -- Point de l'optimum global (optionnel ; data-views peut le montrer/cacher)
+	let marker: THREE.Mesh | null = null;
 	if (ds.optimum !== undefined) {
 		const [ox, oy] = parsePair(ds.optimum, [0, 0]);
-		const marker = new THREE.Mesh(
+		marker = new THREE.Mesh(
 			new THREE.SphereGeometry(0.035, 24, 16),
 			new THREE.MeshBasicMaterial({ color: OPTIMUM_COLOR }));
 		marker.position.set(sxW(ox), syW(oy), zAxis.map(f(ox, oy)));
@@ -353,7 +382,7 @@ function setupFigure(container: HTMLElement): void {
 	// Cible sous le centre de la boîte : le décor (sol, graduations, étiquettes)
 	// déborde surtout vers le bas, ce décalage recentre la figure dans le canvas
 	const targetZ = -0.18;
-	const dist = 5.7 / (zoom > 0 ? zoom : 1);
+	const dist = BASE_DIST / (zoom > 0 ? zoom : 1);
 	camera.position.set(
 		dist * Math.cos(elev) * Math.cos(azim),
 		dist * Math.cos(elev) * Math.sin(azim),
@@ -431,15 +460,130 @@ function setupFigure(container: HTMLElement): void {
 		requestAnimationFrame(spin);
 	}
 	// 'start' = début de toute interaction (clic-glisser, molette, tactile) :
-	// l'utilisateur prend la main, la rotation automatique s'arrête définitivement
-	controls.addEventListener('start', () => { controls.autoRotate = false; });
-	// Relancer la rotation quand la figure redevient affichable : retour sur la
-	// slide (événements reveal.js) ou onglet redevenu visible
-	document.addEventListener('visibilitychange', startSpin);
+	// l'utilisateur prend la main, définitivement — la rotation automatique
+	// s'arrête et une éventuelle transition de vue en cours est interrompue
+	let userInteracted = false;
+	let cancelTween: (() => void) | null = null;
+	controls.addEventListener('start', () => {
+		userInteracted = true;
+		controls.autoRotate = false;
+		cancelTween?.();
+		cancelTween = null;
+	});
+
+	// -- Vues pilotées par les fragments de la slide (data-views) : montrer/cacher
+	// l'optimum, (ré)activer la rotation automatique, déplacer la caméra avec une
+	// transition animée (easing doux, azimut par le chemin le plus court).
+	let views: View[] | null = null;
+	if (ds.views) {
+		try {
+			views = JSON.parse(ds.views) as View[];
+		} catch (e) {
+			console.error('objective_surface_3d: data-views JSON invalide', e, container);
+		}
+	}
+	const baseTarget = new THREE.Vector3(0, 0, targetZ);
+
+	function applyView(view: View, animate: boolean): void {
+		cancelTween?.();
+		cancelTween = null;
+		if (marker) marker.visible = view.optimum === true;
+		controls.autoRotate = view.autoRotate === true && !userInteracted;
+
+		// Position de départ, en sphérique autour de la cible courante
+		const fromTarget = controls.target.clone();
+		const offset = camera.position.clone().sub(fromTarget);
+		const fromDist = offset.length();
+		const fromElev = Math.asin(THREE.MathUtils.clamp(offset.z / fromDist, -1, 1));
+		const fromAzim = Math.atan2(offset.y, offset.x);
+
+		// Position d'arrivée — les champs absents gardent la valeur courante
+		// (sauf la cible, qui revient au centre de la boîte)
+		const toTarget = view.target
+			? new THREE.Vector3(sxW(view.target[0]), syW(view.target[1]),
+				zAxis.map(f(view.target[0], view.target[1])))
+			: baseTarget.clone();
+		const toAzim = view.camera ? view.camera[0] * Math.PI / 180 : fromAzim;
+		const toElev = view.camera ? view.camera[1] * Math.PI / 180 : fromElev;
+		const toDist = view.zoom !== undefined && view.zoom > 0
+			? BASE_DIST / view.zoom : fromDist;
+		let dAzim = (toAzim - fromAzim) % (2 * Math.PI);
+		if (dAzim > Math.PI) dAzim -= 2 * Math.PI;
+		if (dAzim < -Math.PI) dAzim += 2 * Math.PI;
+
+		const place = (u: number): void => {
+			const e = u < 0.5 ? 4 * u ** 3 : 1 - (2 - 2 * u) ** 3 / 2; // easeInOutCubic
+			const azim = fromAzim + dAzim * e;
+			const elev = fromElev + (toElev - fromElev) * e;
+			const d = fromDist + (toDist - fromDist) * e;
+			controls.target.lerpVectors(fromTarget, toTarget, e);
+			camera.position.set(
+				controls.target.x + d * Math.cos(elev) * Math.cos(azim),
+				controls.target.y + d * Math.cos(elev) * Math.sin(azim),
+				controls.target.z + d * Math.sin(elev));
+			camera.lookAt(controls.target);
+			requestRender();
+		};
+
+		const seconds = animate ? (view.duration ?? 2) : 0;
+		if (seconds <= 0 || !displayed()) {
+			place(1);
+			controls.update();
+			startSpin();
+			return;
+		}
+		const t0 = performance.now();
+		let cancelled = false;
+		cancelTween = () => { cancelled = true; };
+		const step = (): void => {
+			if (cancelled) return;
+			const u = Math.min((performance.now() - t0) / (seconds * 1000), 1);
+			place(u);
+			if (u < 1) {
+				requestAnimationFrame(step);
+			} else {
+				cancelTween = null;
+				controls.update(); // resynchronise l'état interne d'OrbitControls
+				startSpin();       // si la vue demande la rotation automatique
+			}
+		};
+		step();
+	}
+
+	// Vue courante = plus grand data-fragment-index visible dans la <section> + 1
+	// (même convention que cem_rosenbrock.ts), plafonné à la dernière vue.
+	function fragmentIndex(): number {
+		let idx = -1;
+		revealSection?.querySelectorAll('.fragment.visible').forEach(fr => {
+			const i = parseInt(fr.getAttribute('data-fragment-index') ?? '', 10);
+			if (!Number.isNaN(i) && i > idx) idx = i;
+		});
+		return idx;
+	}
+
+	let viewIndex = 0;
+	if (views && views.length > 0) applyView(views[0], false);
+
+	function syncState(): void {
+		if (views && views.length > 0) {
+			const idx = Math.min(fragmentIndex() + 1, views.length - 1);
+			if (idx !== viewIndex) {
+				viewIndex = idx;
+				applyView(views[idx], displayed());
+			}
+		}
+		startSpin();
+	}
+
+	// Resynchroniser à chaque changement d'état : navigation entre slides et
+	// fragments (aller ET retour), onglet redevenu visible
+	document.addEventListener('visibilitychange', syncState);
 	const Reveal = (window as unknown as
 		{ Reveal?: { on?: (ev: string, cb: () => void) => void } }).Reveal;
 	if (Reveal?.on) {
-		for (const ev of ['ready', 'slidechanged']) Reveal.on(ev, startSpin);
+		for (const ev of ['ready', 'slidechanged', 'fragmentshown', 'fragmenthidden']) {
+			Reveal.on(ev, syncState);
+		}
 	}
 
 	function resize(): void {
