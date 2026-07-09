@@ -15,7 +15,8 @@
 // absent = figure cachée) :
 //   <svg class="cem-rosenbrock-fig" data-initial-frame="1:proposal"
 //        data-frames="1:samples 1:fit 2:proposal …"></svg>
-// Phases : proposal = ellipses de la distribution courante seules ;
+// Phases : objective = contours de f seuls (fond, sans titre d'itération) ;
+//          proposal = ellipses de la distribution courante seules ;
 //          samples  = + échantillons ; elite = échantillons + élites en rouge
 //          (sans distribution) ; fit = + distribution ajustée sur les élites
 //          (rouge, = proposal de l'itération k+1).
@@ -23,7 +24,7 @@ import * as d3 from 'd3';
 import { cem } from './cem';
 import config from './cem_rosenbrock_config.json';
 
-type Phase = 'proposal' | 'samples' | 'elite' | 'fit';
+type Phase = 'objective' | 'proposal' | 'samples' | 'elite' | 'fit';
 interface Frame { k: number; phase: Phase; }
 
 const VB_W = 420, VB_H = 400;
@@ -188,7 +189,7 @@ function setupFigure(el: SVGSVGElement): (frame: Frame | null) => void {
 			return;
 		}
 		svg.style('visibility', 'visible');
-		title.text(config.title.replace('{k}', String(frame.k)));
+		title.text(frame.phase === 'objective' ? '' : config.title.replace('{k}', String(frame.k)));
 		const iter = run[frame.k - 1];
 
 		gProposal.selectAll('*').remove();
@@ -212,7 +213,7 @@ function setupFigure(el: SVGSVGElement): (frame: Frame | null) => void {
 		}
 
 		gSamples.selectAll('*').remove();
-		if (frame.phase !== 'proposal') {
+		if (frame.phase !== 'objective' && frame.phase !== 'proposal') {
 			const showElite = frame.phase === 'elite' || frame.phase === 'fit';
 			for (const s of iter.samples) {
 				const color = showElite && s.elite ? config.samples.eliteColor : config.samples.color;

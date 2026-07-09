@@ -223,12 +223,10 @@ The surface is interactive: drag it with the mouse to show the valley, zoom with
 	<h3 style="text-align: center;">Cross-Entropy Method</h3>
 
 	<p>
-		<div class="fragment highlight-current-red" data-fragment-index="0">
-			<b>Input:</b><br>
-			&emsp;$f$: the objective function<br>
-			&emsp;$\mathbb{P}$: family of distribution<br>
-			&emsp;$\boldsymbol{\theta}$: initial parameters for the proposal distribution $\mathbb{P}$<br>
-		</div>
+		<b>Input:</b><br>
+		&emsp;<span class="fragment highlight-current-red" data-fragment-index="0">$f$: the objective function</span><br>
+		&emsp;<span class="fragment highlight-current-red" data-fragment-index="1">$\mathbb{P}$: family of distribution</span><br>
+		&emsp;<span class="fragment highlight-current-red" data-fragment-index="1">$\boldsymbol{\theta}$: initial parameters for the proposal distribution $\mathbb{P}$</span><br>
 		<br>
 		<b>Algorithm parameters:</b><br>
 		&emsp;$m$: sample size<br>
@@ -237,30 +235,30 @@ The surface is interactive: drag it with the mouse to show the valley, zoom with
 
 		<b>UNTIL</b> the stop criteria are met<br>
 		<div class="r-stack">
-			<div class="fragment fade-out" data-fragment-index="4" style="margin: 0px; padding: 0px;">
-				&emsp;<span class="fragment highlight-current-red" data-fragment-index="1">$\text{samples} \leftarrow \{x_1, \dots, x_m\}$ with $x_i \sim \mathbb{P}(\boldsymbol{\theta}) ~ \forall i \in 1 \dots m$</span><br>
-				&emsp;<span class="fragment highlight-current-red" data-fragment-index="2">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. select best samples according to $f$)</span> <br>
-				&emsp;<span class="fragment highlight-current-red" data-fragment-index="3">$\boldsymbol{\theta} \leftarrow $ fit $\mathbb{P}(\boldsymbol{\theta})$ to the elite samples</span> <br>
+			<div class="fragment fade-out" data-fragment-index="5" style="margin: 0px; padding: 0px;">
+				&emsp;<span class="fragment highlight-current-red" data-fragment-index="2">$\text{samples} \leftarrow \{x_1, \dots, x_m\}$ with $x_i \sim \mathbb{P}(\boldsymbol{\theta}) ~ \forall i \in 1 \dots m$</span><br>
+				&emsp;<span class="fragment highlight-current-red" data-fragment-index="3">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. select best samples according to $f$)</span> <br>
+				&emsp;<span class="fragment highlight-current-red" data-fragment-index="4">$\boldsymbol{\theta} \leftarrow $ fit $\mathbb{P}(\boldsymbol{\theta})$ to the elite samples</span> <br>
 			</div>
-			<div class="fragment fade-out" data-fragment-index="7" style="margin: 0px; padding: 0px;">
-				<div class="fragment" data-fragment-index="4">
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="4">$\text{samples} \leftarrow \{x_1, \dots, x_m\}$ with $x_i \sim \mathbb{P}(\boldsymbol{\theta}) ~ \forall i \in 1 \dots m$</span><br>
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="5">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. select best samples according to $f$)</span> <br>
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="6">$\boldsymbol{\theta} \leftarrow $ fit $\mathbb{P}(\boldsymbol{\theta})$ to the elite samples</span> <br>
+			<div class="fragment fade-out" data-fragment-index="8" style="margin: 0px; padding: 0px;">
+				<div class="fragment" data-fragment-index="5">
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="5">$\text{samples} \leftarrow \{x_1, \dots, x_m\}$ with $x_i \sim \mathbb{P}(\boldsymbol{\theta}) ~ \forall i \in 1 \dots m$</span><br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="6">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. select best samples according to $f$)</span> <br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="7">$\boldsymbol{\theta} \leftarrow $ fit $\mathbb{P}(\boldsymbol{\theta})$ to the elite samples</span> <br>
 				</div>
 			</div>
-			<div class="fragment fade-out" data-fragment-index="10" style="margin: 0px; padding: 0px;">
-				<div class="fragment" data-fragment-index="7">
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="7">$\text{samples} \leftarrow \{x_1, \dots, x_m\}$ with $x_i \sim \mathbb{P}(\boldsymbol{\theta}) ~ \forall i \in 1 \dots m$</span><br>
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="8">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. select best samples according to $f$)</span> <br>
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="9">$\boldsymbol{\theta} \leftarrow $ fit $\mathbb{P}(\boldsymbol{\theta})$ to the elite samples</span> <br>
+			<div class="fragment fade-out" data-fragment-index="11" style="margin: 0px; padding: 0px;">
+				<div class="fragment" data-fragment-index="8">
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="8">$\text{samples} \leftarrow \{x_1, \dots, x_m\}$ with $x_i \sim \mathbb{P}(\boldsymbol{\theta}) ~ \forall i \in 1 \dots m$</span><br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="9">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. select best samples according to $f$)</span> <br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="10">$\boldsymbol{\theta} \leftarrow $ fit $\mathbb{P}(\boldsymbol{\theta})$ to the elite samples</span> <br>
 				</div>
 			</div>
 			<div style="margin: 0px; padding: 0px;">
-				<div class="fragment" data-fragment-index="10">
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="10">$\text{samples} \leftarrow \{x_1, \dots, x_m\}$ with $x_i \sim \mathbb{P}(\boldsymbol{\theta}) ~ \forall i \in 1 \dots m$</span><br>
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="11">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. select best samples according to $f$)</span> <br>
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="12">$\boldsymbol{\theta} \leftarrow $ fit $\mathbb{P}(\boldsymbol{\theta})$ to the elite samples</span> <br>
+				<div class="fragment" data-fragment-index="11">
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="11">$\text{samples} \leftarrow \{x_1, \dots, x_m\}$ with $x_i \sim \mathbb{P}(\boldsymbol{\theta}) ~ \forall i \in 1 \dots m$</span><br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="12">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. select best samples according to $f$)</span> <br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="13">$\boldsymbol{\theta} \leftarrow $ fit $\mathbb{P}(\boldsymbol{\theta})$ to the elite samples</span> <br>
 				</div>
 			</div>
 		</div>
@@ -272,7 +270,7 @@ The surface is interactive: drag it with the mouse to show the valley, zoom with
 			un jeton "itération:phase" par data-fragment-index, cachée avant le premier fragment -->
 	<div style="padding: 0; position: absolute; top: 0; right: 0;">
 		<svg class="cem-rosenbrock-fig" width="275" height="262"
-				data-frames="1:proposal 1:samples 1:elite 1:fit 2:samples 2:elite 2:fit 3:samples 3:elite 3:fit 4:samples 4:elite 4:fit"></svg>
+				data-frames="1:objective 1:proposal 1:samples 1:elite 1:fit 2:samples 2:elite 2:fit 3:samples 3:elite 3:fit 4:samples 4:elite 4:fit"></svg>
 	</div>
 	<script type="module" src="assets/optimization_cem/cem_rosenbrock.ts"></script>
 
