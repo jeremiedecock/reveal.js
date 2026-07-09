@@ -270,7 +270,7 @@ function setupFigure(container: HTMLElement): void {
 	const zLabel = ds.zLabel ?? 'f(x₁, x₂)';
 
 	function buildDecor(xFar: number, yFar: number, zFar: number,
-		ex: number, ey: number): THREE.Group {
+		ex: number, ey: number, hideZLabels: boolean): THREE.Group {
 		const group = new THREE.Group();
 		// Les panneaux n'écrivent pas la profondeur et sont rendus avant le
 		// quadrillage (renderOrder) : les lignes passent toujours devant eux
@@ -336,11 +336,15 @@ function setupFigure(container: HTMLElement): void {
 			s.position.set(-xFar * 1.14, syW(t), zOut);
 			group.add(s);
 		}
-		// Graduations z : le long de l'arête verticale extérieure gauche (ex, ey)
-		for (const t of zAxis.ticks) {
-			const s = textSprite(fmt(t), TICK_COLOR, TICK_H);
-			s.position.set(ex * 1.12, ey * 1.12, zAxis.map(t));
-			group.add(s);
+		// Graduations z : le long de l'arête verticale extérieure gauche (ex, ey) —
+		// sauf en vue plongeante, où cette arête est vue par la tranche et où les
+		// étiquettes s'empileraient en un paquet illisible
+		if (!hideZLabels) {
+			for (const t of zAxis.ticks) {
+				const s = textSprite(fmt(t), TICK_COLOR, TICK_H);
+				s.position.set(ex * 1.12, ey * 1.12, zAxis.map(t));
+				group.add(s);
+			}
 		}
 
 		// Étiquettes des axes
@@ -348,9 +352,12 @@ function setupFigure(container: HTMLElement): void {
 		lx.position.set(0, -yFar * 1.42, zFar + Math.sign(zFar) * 0.16);
 		const ly = textSprite(yLabel, LABEL_COLOR, AXIS_LABEL_H);
 		ly.position.set(-xFar * 1.42, 0, zFar + Math.sign(zFar) * 0.16);
-		const lz = textSprite(zLabel, LABEL_COLOR, AXIS_LABEL_H, Math.PI / 2);
-		lz.position.set(ex * 1.38, ey * 1.38, 0);
-		group.add(lx, ly, lz);
+		group.add(lx, ly);
+		if (!hideZLabels) {
+			const lz = textSprite(zLabel, LABEL_COLOR, AXIS_LABEL_H, Math.PI / 2);
+			lz.position.set(ex * 1.38, ey * 1.38, 0);
+			group.add(lz);
+		}
 
 		return group;
 	}
@@ -407,12 +414,16 @@ function setupFigure(container: HTMLElement): void {
 		const cornerA = new THREE.Vector3(xFar, -yFar, 0).project(camera);
 		const cornerB = new THREE.Vector3(-xFar, yFar, 0).project(camera);
 		const [ex, ey] = cornerA.x <= cornerB.x ? [xFar, -yFar] : [-xFar, yFar];
-		const key = `${xFar} ${yFar} ${zFar} ${ex} ${ey}`;
+		// Au-delà de 75° d'élévation (vue plongeante), l'axe z est vu par la
+		// tranche : ses étiquettes sont masquées
+		const offset = camera.position.clone().sub(controls.target);
+		const hideZLabels = Math.abs(offset.z) / offset.length() > Math.sin(75 * Math.PI / 180);
+		const key = `${xFar} ${yFar} ${zFar} ${ex} ${ey} ${hideZLabels}`;
 		if (key === decorKey) return;
 		decorKey = key;
 		scene.remove(decor);
 		disposeGroup(decor);
-		decor = buildDecor(xFar, yFar, zFar, ex, ey);
+		decor = buildDecor(xFar, yFar, zFar, ex, ey, hideZLabels);
 		scene.add(decor);
 	}
 
@@ -504,7 +515,13 @@ function setupFigure(container: HTMLElement): void {
 				zAxis.map(f(view.target[0], view.target[1])))
 			: baseTarget.clone();
 		const toAzim = view.camera ? view.camera[0] * Math.PI / 180 : fromAzim;
-		const toElev = view.camera ? view.camera[1] * Math.PI / 180 : fromElev;
+		// Élévation bornée à ±89.9° : au zénith exact, lookAt est dégénéré
+		// (up ∥ ligne de visée) ; à 89.9° la vue est indiscernable d'une vue de
+		// dessus et l'écran garde une orientation stable (le côté opposé à
+		// l'azimut de la caméra apparaît en haut)
+		const toElev = view.camera
+			? THREE.MathUtils.clamp(view.camera[1], -89.9, 89.9) * Math.PI / 180
+			: fromElev;
 		const toDist = view.zoom !== undefined && view.zoom > 0
 			? BASE_DIST / view.zoom : fromDist;
 		let dAzim = (toAzim - fromAzim) % (2 * Math.PI);

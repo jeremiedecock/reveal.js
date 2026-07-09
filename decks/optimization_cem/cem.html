@@ -42,9 +42,13 @@ Common choice : multivariate Normal distributions parameterized by a mean vector
 	<!-- Surface 3D interactive (three.js) : glisser pour tourner, molette pour zoomer.
 			Figure paramétrée par les attributs data-* — voir l'en-tête de
 			assets/optimization_cem/objective_surface_3d.ts pour la liste complète.
-			data-views (piloté par les fragments de la slide, ici celui de la légende) :
+			data-views (piloté par les fragments de la slide, ici ceux de la légende) :
 			vue 0 = surface seule en rotation automatique ; vue 1 (fragment 0 visible) =
-			l'optimum apparaît et la caméra fait un focus dessus en ~2 s. -->
+			l'optimum apparaît et la caméra fait un focus dessus en ~2 s ; vue 2
+			(fragment 1) = vue zénithale orientée comme la figure 2D à courbes de
+			niveau de la slide suivante (x₁ vers la droite, x₂ vers le haut), pour
+			faire comprendre que les courbes de niveau sont cette surface vue de
+			dessus — d'où l'azimut -90 (le côté opposé à la caméra apparaît en haut). -->
 	<div class="r-stretch objective-surface-3d"
 			data-expression="(1 - x)**2 + 100 * (y - x**2)**2"
 			data-x-domain="-2 2"
@@ -56,12 +60,13 @@ Common choice : multivariate Normal distributions parameterized by a mean vector
 			data-optimum="1 1"
 			data-views='[
 				{ "autoRotate": true, "zoom": 1 },
-				{ "optimum": true, "camera": [60, 40], "zoom": 1.8, "target": [1, 1], "duration": 2 }
+				{ "optimum": true, "camera": [60, 40], "zoom": 1.8, "target": [1, 1], "duration": 2 },
+				{ "camera": [-90.5, 90], "zoom": 1.05, "duration": 2 }
 			]'></div>
 	<script type="module" src="assets/optimization_cem/objective_surface_3d.ts"></script>
 
 	<p style="font-size: 40%; color: #888888; margin: 0.4em 0 0 0;">
-		Drag to rotate, scroll to zoom<span class="fragment" data-fragment-index="0"> — the global minimum $f(1, 1) = 0$ appears in red</span>
+		Drag to rotate, scroll to zoom<span class="fragment" data-fragment-index="0"> — the global minimum $f(1, 1) = 0$ appears in red</span><span class="fragment" data-fragment-index="1"> — seen from above: the level curves of $f$</span>
 	</p>
 
 	<aside class="notes">
