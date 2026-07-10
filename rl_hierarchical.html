@@ -1,21 +1,12 @@
 <!doctype html>
 <html lang="en">
 
-	<!-- optimization_cem_v3.html — troisième version du deck CEM. Comme la v2
-	     (dont ce deck est issu), les figures « CEM sur Rosenbrock » sont dessinées
-	     à la volée avec d3.js ; mais au lieu de lire des données précalculées dans
-	     un JSON (générées hors-ligne), l'exécution du CEM est recalculée au
-	     chargement de la page par une implémentation TypeScript de l'algorithme
-	     (assets/optimization_cem/cem.ts), avec une seed de random fixée pour
-	     que les figures soient parfaitement reproductibles.
-	     Voir assets/optimization_cem/README.md. -->
-
 	<head>
 		<meta charset="utf-8">
 
-		<title>Cross-Entropy Method</title>
+		<title>Hierarchical Reinforcement Learning</title>
 
-		<meta name="description" content="Cross-Entropy Method">
+		<meta name="description" content="Hierarchical Reinforcement Learning">
 		<meta name="author" content="Jérémie Decock">
 
 		<meta name="apple-mobile-web-app-capable" content="yes">
@@ -29,7 +20,6 @@
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="dist/plugin/highlight/monokai.css" id="highlight-theme">
-
 	</head>
 
 	<body>
@@ -45,33 +35,23 @@
 
 				<!-- Slide: Titre -->
 				<section>
-					<h3>Cross-Entropy Method</h3>
+					<h1 style="font-size: 1.4em;">Hierarchical Reinforcement Learning</h1>
 					<br>
-					<p>
-						Jérémie Decock
-					</p>
-					<p>
-						17/12/2022
-					</p>
-
-					<!-- Macros definition -->
-					$$
-					\newcommand{\vs}[1]{\boldsymbol{#1}} % vector symbol (\boldsymbol, \textbf or \vec)
-					\newcommand{\ms}[1]{\boldsymbol{#1}} % matrix symbol (\boldsymbol, \textbf)
-					$$
+					<br>
+					<p style="font-size: 1em;"><small><a href="https://www.jdhp.org/">Jérémie Decock</a></small></p>
+					<p style="font-size: 1em;"><small>October 10, 2025</small></p>
 
 					<aside class="notes">
-						<ul>
-							<li>...</li>
-						</ul>
+						<div class="fr-notes"></div>
+						<div class="en-notes"></div>
 					</aside>
 				</section>
 
 				<!-- ------------------------------------------------------ -->
-				<!-- CROSS-ENTROPY METHOD --------------------------------- -->
+				<!-- HIERARCHICAL REINFORCEMENT LEARNING ------------------ -->
 				<!-- ------------------------------------------------------ -->
 
-				<!-- @include decks/optimization_cem/cem.html -->
+				<!-- @include decks/rl_hierarchical/rl_hierarchical.html -->
 
 			</div>
 
@@ -145,6 +125,9 @@
 			});
 
 		</script>
+
+		<!-- Assurez-vous que jdhp.js est référencé après tous les autres scripts -->
+		<script src="jdhp.js"></script>
 
 	</body>
 

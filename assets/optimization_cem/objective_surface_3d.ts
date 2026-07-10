@@ -2,10 +2,10 @@
 // interactive : glisser à la souris pour tourner autour de la surface, molette pour
 // zoomer / dézoomer. Par défaut, la vue tourne lentement toute seule autour de la
 // surface ; la première interaction (clic, glisser, molette, tactile) arrête
-// définitivement cette rotation automatique. L'apparence imite les surfaces 3D de
-// matplotlib : panneaux gris clair quadrillés de blanc qui changent de côté quand
-// la caméra tourne, colormap séquentielle appliquée à la surface, étiquettes de
-// graduations et d'axes.
+// définitivement cette rotation automatique. Le décor est minimaliste : trois
+// simples droites pour les axes x₁, x₂ et f(x₁, x₂) (avec graduations et
+// étiquettes), qui changent de côté quand la caméra tourne pour rester du côté
+// visible ; colormap séquentielle appliquée à la surface.
 //
 // Usage dans une slide — un conteneur par figure + le script une seule fois :
 //   <div class="r-stretch objective-surface-3d"
@@ -80,9 +80,7 @@ interface View {
 // (rapport 2 × 2 × 1.4, proche du box aspect 4:4:3 de matplotlib).
 const HX = 1, HY = 1, HZ = 0.7;
 
-const PANE_COLOR = 0xf2f2f2;   // fond des panneaux (matplotlib : gris ~0.95)
-const GRID_COLOR = 0xffffff;   // quadrillage des panneaux
-const EDGE_COLOR = 0xbdbdbd;   // arêtes des panneaux
+const AXIS_COLOR = 0x555555;   // droites des axes et graduations
 const TICK_COLOR = '#555555';
 const LABEL_COLOR = '#000000';
 const OPTIMUM_COLOR = 0xff0000; // rouge = optimum, comme les élites des autres figures
@@ -281,78 +279,44 @@ function setupFigure(container: HTMLElement): void {
 		if (marker) marker.position.z = -HZ + (markerBaseZ + HZ) * s;
 	}
 
-	// -- Décor « matplotlib » (panneaux, quadrillage, graduations, étiquettes),
-	// reconstruit quand la caméra change d'octant pour rester derrière la surface.
+	// -- Décor minimaliste (droites des axes, graduations, étiquettes),
+	// reconstruit quand la caméra change d'octant pour rester du côté visible.
 	const fmt = d3.format('~g');
 	const xLabel = ds.xLabel ?? 'x₁';
 	const yLabel = ds.yLabel ?? 'x₂';
 	const zLabel = ds.zLabel ?? 'f(x₁, x₂)';
 
 	function buildDecor(xFar: number, yFar: number, zFar: number,
-		ex: number, ey: number, hideZLabels: boolean, hideWalls: boolean): THREE.Group {
+		ex: number, ey: number, hideZ: boolean): THREE.Group {
 		const group = new THREE.Group();
-		// Les panneaux n'écrivent pas la profondeur et sont rendus avant le
-		// quadrillage (renderOrder) : les lignes passent toujours devant eux
-		const paneMaterial = new THREE.MeshBasicMaterial({
-			color: PANE_COLOR, side: THREE.DoubleSide, depthWrite: false
-		});
 
-		const paneZ = new THREE.Mesh(new THREE.PlaneGeometry(2 * HX, 2 * HY), paneMaterial);
-		paneZ.position.z = zFar;
-		paneZ.renderOrder = -2;
-		group.add(paneZ);
-		if (!hideWalls) {
-			const paneX = new THREE.Mesh(new THREE.PlaneGeometry(2 * HZ, 2 * HY), paneMaterial);
-			paneX.rotation.y = Math.PI / 2;
-			paneX.position.x = xFar;
-			const paneY = new THREE.Mesh(new THREE.PlaneGeometry(2 * HX, 2 * HZ), paneMaterial);
-			paneY.rotation.x = Math.PI / 2;
-			paneY.position.y = yFar;
-			paneX.renderOrder = paneY.renderOrder = -2;
-			group.add(paneX, paneY);
+		// Trois droites le long des arêtes de la boîte : x₁ et x₂ sur les bords du
+		// bas côté caméra (là où se trouvent leurs graduations), f(x₁, x₂) sur
+		// l'arête verticale extérieure gauche — plus de courtes marques de
+		// graduation pointant vers l'extérieur
+		const tickLen = 0.045;
+		const axes: number[] = [
+			-HX, -yFar, zFar, HX, -yFar, zFar,   // axe x₁
+			-xFar, -HY, zFar, -xFar, HY, zFar];  // axe x₂
+		for (const t of xTicks) {
+			const x = sxW(t);
+			axes.push(x, -yFar, zFar, x, -yFar - Math.sign(yFar) * tickLen, zFar);
 		}
-
-		const xTicksW = xTicks.map(t => sxW(t));
-		const yTicksW = yTicks.map(t => syW(t));
-		const zTicksW = zAxis.ticks.map(t => zAxis.map(t));
-
-		// Quadrillage blanc de chaque panneau, légèrement décalé vers l'EXTÉRIEUR
-		// de la boîte : jamais devant la surface, même là où elle touche la boîte
-		// (fond de la vallée sur le sol, bords du domaine sur les murs)
-		const eps = 0.0015;
-		const grid: number[] = [];
-		if (!hideWalls) {
-			const gx = xFar + Math.sign(xFar) * eps;
-			for (const t of yTicksW) grid.push(gx, t, -HZ, gx, t, HZ);
-			for (const t of zTicksW) grid.push(gx, -HY, t, gx, HY, t);
-			const gy = yFar + Math.sign(yFar) * eps;
-			for (const t of xTicksW) grid.push(t, gy, -HZ, t, gy, HZ);
-			for (const t of zTicksW) grid.push(-HX, gy, t, HX, gy, t);
+		for (const t of yTicks) {
+			const y = syW(t);
+			axes.push(-xFar, y, zFar, -xFar - Math.sign(xFar) * tickLen, y, zFar);
 		}
-		const gz = zFar + Math.sign(zFar) * eps;
-		for (const t of xTicksW) grid.push(t, -HY, gz, t, HY, gz);
-		for (const t of yTicksW) grid.push(-HX, t, gz, HX, t, gz);
-		const gridLines = lineSegments(grid, GRID_COLOR);
-		gridLines.renderOrder = -1;
-		group.add(gridLines);
-
-		// Arêtes des panneaux
-		const edges: number[] = [];
-		if (!hideWalls) {
-			edges.push(
-				xFar, -HY, -HZ, xFar, HY, -HZ, xFar, HY, -HZ, xFar, HY, HZ,
-				xFar, HY, HZ, xFar, -HY, HZ, xFar, -HY, HZ, xFar, -HY, -HZ,
-				-HX, yFar, -HZ, HX, yFar, -HZ, HX, yFar, -HZ, HX, yFar, HZ,
-				HX, yFar, HZ, -HX, yFar, HZ, -HX, yFar, HZ, -HX, yFar, -HZ);
+		if (!hideZ) {
+			axes.push(ex, ey, -HZ, ex, ey, HZ);  // axe f(x₁, x₂)
+			for (const t of zAxis.ticks) {
+				const z = zAxis.map(t);
+				axes.push(ex, ey, z,
+					ex + Math.sign(ex) * tickLen, ey + Math.sign(ey) * tickLen, z);
+			}
 		}
-		edges.push(
-			-HX, -HY, zFar, HX, -HY, zFar, HX, -HY, zFar, HX, HY, zFar,
-			HX, HY, zFar, -HX, HY, zFar, -HX, HY, zFar, -HX, -HY, zFar);
-		const edgeLines = lineSegments(edges, EDGE_COLOR);
-		edgeLines.renderOrder = -1;
-		group.add(edgeLines);
+		group.add(lineSegments(axes, AXIS_COLOR));
 
-		// Graduations x et y : le long des arêtes du panneau du bas côté caméra
+		// Graduations x et y : le long des droites d'axes du bas côté caméra
 		const zOut = zFar + Math.sign(zFar) * 0.06;
 		for (const t of xTicks) {
 			const s = textSprite(fmt(t), TICK_COLOR, TICK_H);
@@ -367,7 +331,7 @@ function setupFigure(container: HTMLElement): void {
 		// Graduations z : le long de l'arête verticale extérieure gauche (ex, ey) —
 		// sauf en vue plongeante, où cette arête est vue par la tranche et où les
 		// étiquettes s'empileraient en un paquet illisible
-		if (!hideZLabels) {
+		if (!hideZ) {
 			for (const t of zAxis.ticks) {
 				const s = textSprite(fmt(t), TICK_COLOR, TICK_H);
 				s.position.set(ex * 1.12, ey * 1.12, zAxis.map(t));
@@ -381,7 +345,7 @@ function setupFigure(container: HTMLElement): void {
 		const ly = textSprite(yLabel, LABEL_COLOR, AXIS_LABEL_H);
 		ly.position.set(-xFar * 1.42, 0, zFar + Math.sign(zFar) * 0.16);
 		group.add(lx, ly);
-		if (!hideZLabels) {
+		if (!hideZ) {
 			const lz = textSprite(zLabel, LABEL_COLOR, AXIS_LABEL_H, Math.PI / 2);
 			lz.position.set(ex * 1.38, ey * 1.38, 0);
 			group.add(lz);
@@ -442,20 +406,18 @@ function setupFigure(container: HTMLElement): void {
 		const cornerA = new THREE.Vector3(xFar, -yFar, 0).project(camera);
 		const cornerB = new THREE.Vector3(-xFar, yFar, 0).project(camera);
 		const [ex, ey] = cornerA.x <= cornerB.x ? [xFar, -yFar] : [-xFar, yFar];
-		// Surface aplatie en carte 2D : les murs, qui encadreraient du vide,
-		// disparaissent (il ne reste que le sol et ses graduations x/y)
-		const hideWalls = flattenNow > 0.9;
 		// Au-delà de 75° d'élévation (vue plongeante), l'axe z est vu par la
-		// tranche : ses étiquettes sont masquées — de même sans murs
+		// tranche : sa droite et ses étiquettes sont masquées — de même quand la
+		// surface est aplatie en carte 2D (l'axe z n'encadrerait que du vide)
 		const offset = camera.position.clone().sub(controls.target);
-		const hideZLabels = hideWalls ||
+		const hideZ = flattenNow > 0.9 ||
 			Math.abs(offset.z) / offset.length() > Math.sin(75 * Math.PI / 180);
-		const key = `${xFar} ${yFar} ${zFar} ${ex} ${ey} ${hideZLabels} ${hideWalls}`;
+		const key = `${xFar} ${yFar} ${zFar} ${ex} ${ey} ${hideZ}`;
 		if (key === decorKey) return;
 		decorKey = key;
 		scene.remove(decor);
 		disposeGroup(decor);
-		decor = buildDecor(xFar, yFar, zFar, ex, ey, hideZLabels, hideWalls);
+		decor = buildDecor(xFar, yFar, zFar, ex, ey, hideZ);
 		scene.add(decor);
 	}
 

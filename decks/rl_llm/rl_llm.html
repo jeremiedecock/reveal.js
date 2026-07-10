@@ -1,0 +1,1046 @@
+<!-- @preview /rl_llm.html -->
+<!-- #region -->
+
+<!-- Slide: Overview (subtitle) -->
+<section data-transition="none">
+	<h3>Overview</h3>
+
+	<img width="90%" src="assets/rl_llm/llm_finetuning.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+		Source: Julia Turc
+	</figcaption>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+So, to begin with, here is an overview of the training process for modern large language models
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Overview (subtitle) -->
+<section data-transition="none">
+	<h3>Overview</h3>
+
+	<img width="90%" src="assets/rl_llm/llm_finetuning_1.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+		Source: Julia Turc
+	</figcaption>
+
+	<p style="font-size: 0.5em;">
+		The model is first trained using self-supervised learning on a massive amount of text data.
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+The model is first trained using self-supervised learning on a massive amount of text data.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Overview (subtitle) -->
+<section data-transition="none">
+	<h3>Overview</h3>
+
+	<img width="90%" src="assets/rl_llm/llm_finetuning_2.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+		Source: Julia Turc
+	</figcaption>
+
+	<p style="font-size: 0.5em;">
+		This produces a sophisticated auto-completer but cannot easily interact with humans.
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+This produces a base model capable of completing text prompts.
+
+However, this base model is essentially a sophisticated auto-completer.
+It cannot easily interact with humans because:
+
+- It cannot reliably answer user questions or follow instructions.
+- It cannot engage in natural, conversational dialogue.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Overview (subtitle) -->
+<section data-transition="none">
+	<h3>Overview</h3>
+
+	<img width="90%" src="assets/rl_llm/llm_finetuning_3.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+		Source: Julia Turc
+	</figcaption>
+
+	<p style="font-size: 0.5em;">
+		To make the model more useful we apply <b>instruction fine-tuning</b> or <b>Supervised Fine-Tuning (SFT)</b>
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+To make the model more useful and interactive,
+it is fine-tuned using supervised learning.
+
+This step is often called <b>instruction fine-tuning</b>
+or <b>Supervised Fine-Tuning (SFT)</b>.
+
+There, a dataset of instructions paired with high-quality human-written responses is used to adjust the model’s weights,
+teaching it to imitate and generalize these desirable outputs.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Overview (subtitle) -->
+<section data-transition="none">
+	<h3>Overview</h3>
+
+	<img width="90%" src="assets/rl_llm/llm_finetuning_4.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 2em;">
+		Source: Julia Turc
+	</figcaption>
+
+	<p style="font-size: 0.5em;">
+		Now the model that can follow instructions, answer questions, and chat more naturally.<br>
+		But it may still generate outputs that are misaligned with human preferences.
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+The result is a model that can follow instructions,
+answer questions,
+and chat more naturally.
+
+But even after "instruction fine-tuning", the model may still generate outputs that are misaligned with human preferences.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Overview (subtitle) -->
+<section data-transition="none">
+	<h3>Overview</h3>
+
+	<img width="90%" src="assets/rl_llm/llm_finetuning_5.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+		Source: Julia Turc
+	</figcaption>
+
+	<p style="font-size: 0.5em;">
+		A second stage of fine-tuning is applied.
+		Historically, OpenAI used <b>PPO</b> within the <b>Reinforcement Learning from Human Feedback (or RLHF)</b> framework to achieve this.
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+To address this,
+a second stage of fine-tuning is applied: the <b>preference-based fine-tuning</b>.
+
+Historically, OpenAI used <b>Proximal Policy Optimization (PPO)</b>
+within the <b>Reinforcement Learning from Human Feedback (or RLHF)</b> framework
+to achieve this alignment.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!--
+## RLHF (~15 slides)
+
+- [x] Motivation: Reasoning-based fine-tuning
+- [x] Context: InstructGPT and ChatGPT
+- InstructGPT : https://proceedings.neurips.cc/paper_files/paper/2022/file/b1efde53be364a73914f58805a001731-Paper-Conference.pdf
+- What is RLHF? (~10 slides)
+- [x] Learn from feedback: a generalization of the RL framework (1 slide)
+- [x] A quick intro to Reward model (RM) and IRL (see next week) (1 slide)
+- [x] Preference-based RL (~3 slides)
+- [x] RLHF (~5 slides)
+- [x] Application to GPT: RLHF + IRL + PbRL (~2 slides)
+- [x] Advatages and drawbacks
+- [ ] Main alternatives: DPO (not RL-based by the way), RBRs
+-->
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Preference-based fine-tuning (Motivations) -->
+<section>
+	<h3>Preference-based fine-tuning</h3>
+	<h4>Motivations</h4>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Why do we need a second stage of fine-tuning?</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li><b>Supervised fine-tuning</b> alone cannot guarantee outputs that are fully <b>aligned</b> with human preferences.</li>
+		<li>Collecting larger, high-quality human-labeled <b>datasets</b> is <b>too expensive</b> or <b>impractical</b>.</li>
+	</ul>
+
+	<p style="font-size: 0.65em;">
+		<b>Preference-based fine-tuning</b> enables direct optimization for human alignment <b>using feedback</b>, without requiring exhaustive annotation → <b>much cheaper</b>.
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+So, why do we need a second stage of fine-tuning?
+
+Mainly for two reasons:
+- As I already mentioned, the first reason is that supervised fine-tuning alone cannot guarantee outputs that are fully aligned with human preferences
+- And the second reason is the lack of high-quality labeled datasets to further improve alignment.
+
+Preference-based fine-tuning enables direct optimization for human alignment using <b>feedback</b>,
+without requiring exhaustive annotation.
+
+This is much cheaper.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Preference-based fine-tuning (with RLHF/PPO) -->
+<section>
+	<h3>Preference-based fine-tuning</h3>
+	<h4>With RLHF/PPO</h4>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Learn from feedback -->
+<section>
+	<h3>Learn from feedback</h3>
+	<h4>A generalization of the RL framework</h4>
+
+	<ul style="font-size: 0.55em;">
+		<li>RL agents need <b>feedback</b> to learn preferred behaviors</li>
+		<li>Usually provided by a reward function (maps states/actions to scalar values)</li>
+		<li><b>Explicit reward functions can be hard to design in real-world tasks</b></li>
+		<li>Alternative feedback sources (e.g., human preferences, demonstrations) can guide learning</li>
+		<li>This generalizes RL to "<b>learning from feedback</b>"</li>
+	</ul>
+
+	<img width="40%" src="assets/rl_llm/learn_from_feedback.png" />
+	<figcaption style="font-size: 0.3em; text-align: center;">
+		Source: Z. Xiao, Reinforcement Learning, <a href="https://doi.org/10.1007/978-981-19-4933-3_16">https://doi.org/10.1007/978-981-19-4933-3_16</a>
+	</figcaption>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+Training an RL agent requires some information to indicate what behaviors are preferred.
+
+This is typically provided by a reward function that maps states and actions to scalar values.
+
+However, in some real-world scenarios, designing an explicit reward function is challenging or infeasible.
+
+In such cases, we can use other kinds of feedback to guide the learning process.
+
+This leads to a generalization of the RL framework called "learning from feedback".
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Reward Model (subtitle) -->
+<section>
+	<h3>Reward Model</h3>
+	<h4>A quick introduction</h4>
+
+	<ul style="font-size: 0.7em;">
+		<li>When a reward function is unavailable, we may learn a <b>reward model</b> from trajectory examples.</li>
+		<li>Use the reward model’s output as reward signals for RL algorithms.</li>
+		<li>This approach is known as <b>Inverse Reinforcement Learning (IRL)</b>.</li>
+		<li>IRL will be covered in more detail next week.</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+For the tasks that the reward function is not available,
+we may consider learning a <b>reward model</b>
+and then apply the output of this reward model
+as reward signals on the RL algorithms.
+
+In other words, we <b>learn</b> the reward function from examples of desired behavior.
+
+This is called <b>Inverse Reinforcement Learning (IRL)</b>
+(more on that next week).
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: PbRL: Preference-based RL -->
+<section>
+	<h3>PbRL: Preference-based RL</h3>
+	<!-- <h4>subtitle</h4> -->
+
+	<p style="font-size: 0.65em; text-align: left; margin-bottom: 0em; margin-left: 1em; margin-top: 1em;"><b>Key Idea:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Instead of scalar rewards, use <b>preferences</b> over trajectory segments as feedback.</li>
+		<li>Train a <b>reward model</b> to predict which segment is preferred.</li>
+		<li>Use the learned reward model to provide reward signals for RL algorithms.</li>
+		<li>Enables learning from <b>comparative feedback</b> rather than absolute rewards.</li>
+	</ul>
+
+	<p style="font-size: 0.65em; margin-top: 1em;">
+		👉 When the environment does not provide a <b>reward function</b>, but a <b>preference feedback</b>, we do <b>Preference-based RL</b> (PbRL).
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+One example of feedback different from scalar rewards is <b>preferences</b>.
+
+Preferences can be collected by asking humans to compare pairs of trajectory segments
+and indicate which one they prefer.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: RLHF -->
+<section>
+	<h3>Reinforcement Learning from Human Feedback (RLHF)</h3>
+	<!-- <h4>subtitle</h4> -->
+
+	<img width="80%" src="assets/rl_llm/rlhf.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 1em;">
+		Source: <a href="https://openai.com/index/learning-from-human-preferences/">https://openai.com/index/learning-from-human-preferences/</a>
+	</figcaption>
+
+	<p style="font-size: 0.65em; margin-top: 1em;">
+		👉 When this <b>preference feedback</b> is provided by a human during training, we do <b>Reinforcement Learning from Human Feedback</b> (RLHF)
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+When this <b>preference feedback</b> is provided by a human during training, we do <b>Reinforcement Learning from Human Feedback</b> (RLHF)
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: RLHF -->
+<section>
+	<h3>Reinforcement Learning from Human Feedback (RLHF)</h3>
+	<!-- <h4>subtitle</h4> -->
+
+	<img width="40%" src="assets/rl_llm/LearningFromHumanPreferencesPoster.webp" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 1em;">
+		Source: <a href="https://openai.com/index/learning-from-human-preferences/">https://openai.com/index/learning-from-human-preferences/</a>
+	</figcaption>
+
+	<ul style="font-size: 0.5em; margin-top: 1em; margin-left: 1em;">
+		<li>RLHF first developed by OpenAI (2017) for training robots in simulated environments and Atari games.</li>
+		<li>First, agent acts randomly; human compares pairs of video clips and selects the one closer to the objective (e.g., backflip).</li>
+		<li>Algorithm learns a reward function that matches human preferences.</li>
+		<li>Uses RL to optimize agent behavior toward the learned goal.</li>
+		<li>Continually requests human feedback on uncertain trajectory pairs to refine the reward model.</li>
+		<li>Demonstrates high sample efficiency: backflip task required less than 1000 bits of human feedback.</li>
+	</ul>
+
+	<!-- <p style="font-size: 0.65em; margin-top: 1em;">
+		👉 When this <b>preference feedback</b> is provided by a human during training, we do <b>Reinforcement Learning from Human Feedback</b> (RLHF)
+	</p> -->
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+Originally, RLHF was developed by OpenAI in 2017
+for training simple robots
+in simulated environments and Atari games.
+
+Here, the RL agent starts by acting randomly in the environment.
+Periodically, two video clips of its behavior are given to a human,
+and the human decides which of the two clips is closest to the objective:
+in this case, the objective is to do a backflip.
+
+The algorithm gradually builds a model of the goal of the task
+by finding the reward function that best explains the human’s judgments.
+
+It then uses RL to learn how to achieve that goal.
+As its behavior improves, it continues to ask for human feedback on trajectory pairs
+where it’s most uncertain about which is better,
+and further refines its understanding of the goal.
+
+This approach demonstrates good sample efficiency.
+The backflip video required under 1000 bits of human feedback.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: RLHF -->
+<section>
+	<h3>Reinforcement Learning from Human Feedback (RLHF)</h3>
+	<!-- <h4>subtitle</h4> -->
+
+	<img width="40%" src="assets/rl_llm/humanfeedbackjump.webp" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 1em;">
+		Source: <a href="https://openai.com/index/learning-from-human-preferences/">https://openai.com/index/learning-from-human-preferences/</a>
+	</figcaption>
+
+	<!-- <p style="font-size: 0.65em; margin-top: 1em;">
+		👉 When this <b>preference feedback</b> is provided by a human during training, we do <b>Reinforcement Learning from Human Feedback</b> (RLHF)
+	</p> -->
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+It took less than an hour of a human evaluator’s time,
+to achieve this objective, without any explicit reward function.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: RLHF (Application to LLMs) -->
+<section>
+	<h3>RLHF</h3>
+	<h4>Application to LLMs</h4>
+
+	<img width="60%" src="assets/rl_llm/chatgpt_feedback.jpeg" />🤨
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+		Source: https://x.com/nathanlents/status/1735034140930572791
+	</figcaption>
+
+	<ul style="font-size: 0.65em; margin-top: 1em; margin-left: 1em;">
+		<li>RLHF was first developed for training robots and Atari agents.</li>
+		<li>Quickly adapted for large language models (LLMs).</li>
+		<li>ChatGPT users regularly see feedback requests.</li>
+		<li>User feedback is leveraged to further align LLMs via RLHF.</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+Ok, so originally RLHF was developed for training simple robots in simulated environments and Atari games.
+But it was quickly adapted to train large language models.
+
+You have certainly seen this request for feedback in ChatGPT.
+
+This free labor is used to further align the model to its users using RLHF.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: RLHF (Application to LLMs) -->
+<section>
+	<h3>RLHF - Application to LLMs</h3>
+
+	<img width="85%" src="assets/rl_llm/rlhf_1.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 1em;">
+		Source: <a href="https://proceedings.neurips.cc/paper_files/paper/2020/file/1f89885d556929e98d3ef9b86448f951-Paper.pdf">Stiennon, N., Ouyang, L., Wu, J., Ziegler, D., Lowe, R., Voss, C., ... & Christiano, P. F. (2020). Learning to summarize with human feedback. Advances in neural information processing systems, 33, 3008-3021.</a>
+	</figcaption>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+Also, it has been used in 2020 to train models to summarize text with human feedback.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: RLHF (Application to LLMs) -->
+<section>
+	<h3>RLHF - Application to LLMs</h3>
+
+	<img width="85%" src="assets/rl_llm/rlhf_instruct_gpt.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 1em;">
+		Source: <a href="https://proceedings.neurips.cc/paper_files/paper/2022/file/b1efde53be364a73914f58805a001731-Paper-Conference.pdf">Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C., Mishkin, P., ... & Lowe, R. (2022). Training language models to follow instructions with human feedback. Advances in neural information processing systems, 35, 27730-27744.</a>
+	</figcaption>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+And finally, it has been used in 2022 to train InstructGPT,
+the first model to follow instructions using human feedback.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: RLHF (Results) -->
+<section>
+	<h3>RLHF</h3>
+	<h4>Application to LLMs</h4>
+
+	<img width="60%" src="assets/rl_llm/rlhf_instruct_gpt_results.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 1em;">
+		Source: <a href="https://proceedings.neurips.cc/paper_files/paper/2022/file/b1efde53be364a73914f58805a001731-Paper-Conference.pdf">Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C., Mishkin, P., ... & Lowe, R. (2022). Training language models to follow instructions with human feedback. Advances in neural information processing systems, 35, 27730-27744.</a>
+	</figcaption>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+Human evaluations confirmed that InstructGPT models (PPO-ptx) was preferred to GPT-3 models.
+
+This plot shows by how often outputs from each model were preferred to those from the 175B SFT model.
+
+Here InstructGPT is named <b>PPO-ptx</b>
+and <b>PPO</b> corresponds to a variant trained without prior instruction fine-tuning.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: RLHF (Advantages and drawbacks) -->
+<section>
+	<h3>RLHF</h3>
+	<h4>Advantages and drawbacks</h4>
+
+	<p style="font-size: 0.65em; text-align: left; margin-bottom: 0em; margin-left: 1em; margin-top: 1em;"><b>Advantage:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; margin-left: 1em;">
+		<li>Compared to alternative <b>preference fine-tuning</b> methods such as <b>Direct Preference Optimization</b> (DPO), RLHF typically <b>requires less human feedback</b> to reach comparable performance.</li>
+	</ul>
+
+	<p style="font-size: 0.65em; text-align: left; margin-bottom: 0em; margin-left: 1em; margin-top: 1em;"><b>Drawbacks:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; margin-left: 1em;">
+		<li>Training can be unstable; the <b>Reward Model</b> may be inaccurate, leading to misaligned or unintended behaviors.</li>
+		<li>The PPO policy may exploit <b>Reward Model</b> weakness (reward hacking).</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+RLHF has one big advantage for the LLMs usecase:
+compared to alternative <b>preference fine-tuning</b> methods such as <b>Direct Preference Optimization</b> (DPO),
+RLHF requires less human feedback to achieve similar performance.
+
+But it has also one big drawback:
+it can be unstable :
+- the Reward Model may be inaccurate, or
+- the Reward Model may be "exploited" by the policy.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: RLHF references -->
+<section>
+	<h3>RLHF</h3>
+	<h4>References</h4>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>References:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>
+			<a href="https://proceedings.neurips.cc/paper_files/paper/2017/file/d5e2c0adad503c91f91df240d0cd4e49-Paper.pdf" target="_blank">
+				Christiano, P. F., Leike, J., Brown, T., Martic, M., Legg, S., & Amodei, D. (2017). Deep reinforcement learning from human preferences. Advances in neural information processing systems, 30.
+			</a>
+			(<a href="https://openai.com/index/learning-from-human-preferences/">OpenAI blog</a>)
+		</li>
+		<li>
+			<a href="https://proceedings.neurips.cc/paper_files/paper/2020/file/1f89885d556929e98d3ef9b86448f951-Paper.pdf" target="_blank">
+				Stiennon, N., Ouyang, L., Wu, J., Ziegler, D., Lowe, R., Voss, C., ... & Christiano, P. F. (2020). Learning to summarize with human feedback. Advances in neural information processing systems, 33, 3008-3021.
+			</a>
+			(<a href="https://openai.com/index/learning-to-summarize-with-human-feedback/">OpenAI blog</a>)
+		</li>
+		<li>
+			<a href="https://proceedings.neurips.cc/paper_files/paper/2022/file/b1efde53be364a73914f58805a001731-Paper-Conference.pdf" target="_blank">
+				Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, C., Mishkin, P., ... & Lowe, R. (2022). Training language models to follow instructions with human feedback. Advances in neural information processing systems, 35, 27730-27744.
+			</a>
+			(<a href="https://openai.com/fr-FR/index/instruction-following/">OpenAI blog</a>)
+		</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Overview (subtitle) -->
+<section data-transition="none">
+	<h3>Overview</h3>
+
+	<img width="90%" src="assets/rl_llm/llm_finetuning_6.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+		Source: Julia Turc
+	</figcaption>
+
+	<p style="font-size: 0.5em;">
+		RLHF/DPO produced a model more aligned with human preferences.<br>
+		But third stage or fine-tuning can be applied to <b>improve reasoning skills</b>.
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+Ok so RLHF (or DPO) can be use to produce a model more aligned with human preferences.
+
+But a third stage of fine-tuning can be applied to <b>improve reasoning skills</b>.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Overview (subtitle) -->
+<section data-transition="none">
+	<h3>Overview</h3>
+
+	<img width="90%" src="assets/rl_llm/llm_finetuning_7.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+		Source: Julia Turc
+	</figcaption>
+
+	<p style="font-size: 0.5em;">
+		This was popularized by the open-source model DeepSeek-R1 in January 2025 with the <b>GRPO</b> algorithm
+		within the <b>Reinforcement Learning from Verifiable Rewards (RLVR)</b> framework.
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+This third stage was popularized by the open-source model
+DeepSeek-R1
+in January of this year
+
+DeepSeek-R1 applies the <b>Group Relative Policy Optimization</b> algorithm (or GRPO)
+within the <b>Reinforcement Learning from Verifiable Rewards (RLVR)</b> framework
+to especially enhance reasoning capabilities
+in LLMs.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!--
+## RLVR (~15 slides)
+
+- [x] Motivation: Reasoning-based fine-tuning
+- [ ] Context: the DeepSeek-R1, DeepSeekMath, OpenR1, Tülu3, ... models
+- [ ] What is RLVR?
+- [ ] GRPO algorithm (~10 slides)
+- Similarities and differences with PPO
+- GRPO paper (DeepSeekMath): https://arxiv.org/pdf/2402.03300
+- DeepSeek-R1 paper: https://arxiv.org/pdf/2501.12948
+- Tülu3 paper: https://arxiv.org/pdf/2411.15124
+- GRPO variants
+- Alternatives
+- https://arxiv.org/pdf/2509.25454 (?)
+- ...
+- Conclusion (*)
+-->
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Reasoning-based fine-tuning (With RLVR/GRPO) -->
+<section>
+	<h3>Reasoning-based fine-tuning</h3>
+	<h4>With RLVR/GRPO</h4>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Reasoning-based fine-tuning (context - DeepSeek) -->
+<section>
+	<h3>Reasoning-based fine-tuning</h3>
+	<h4>Context</h4>
+
+	<ul style="font-size: 0.7em; margin-left: 1em;">
+		<li><b>Reasoning tasks</b> (math, CS, logic) have a single correct answer and can be automatically verified.</li>
+		<li>Unlike creative tasks, no human feedback is needed for evaluation.</li>
+		<li>Enables automatic, scalable assessment of LLM outputs.</li>
+		<li>DeepSeek-R1 applies a third fine-tuning stage for reasoning using RL with verifiable rewards.</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+There's a special class of NLP problems called <b>reasoning tasks</b>,
+which includes math, computer science, logic, and so on.
+
+Unlike open-ended or creative tasks,
+reasoning tasks typically have a single correct answer and a deterministic procedure for verifying the model’s output.
+
+This property enables automatic evaluation of LLMs on reasoning tasks,
+without requiring human feedback for each example.
+
+DeepSeek-R1 leverages this by applying a third stage of fine-tuning specifically for reasoning,
+using a Reinforcement Learning framework that exploits verifiable rewards.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Reasoning-based fine-tuning (context - DeepSeek) -->
+<section>
+	<h3>Reinforcement Learning with Verifiable Rewards</h3>
+	<!-- <h4>What is RLVR?</h4> -->
+
+	<img width="60%" src="assets/rl_llm/rlvr.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+		Source: Julia Turc
+	</figcaption>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+So here a reinforcement Learning algorithm is used to fin 
+
+The reasoning task fit well within the RL framework:
+- the policy is the LLM; it generates a sequence of tokens (actions);
+here we use a stochastic policy,
+so it output a probability distribution over the full dictionnary of tokens
+at each step;
+- the state is the current context (prompt + generated tokens)
+- and the reward is 1 if the final answer is correct, 0 otherwise.
+using a reward signal that is automatically computed based on whether the final answer is correct or not.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<section>
+	<!-- Slide: Reasoning-based fine-tuning (context - DeepSeek) -->
+	<!-- <section>
+		<h3>Reasoning-based fine-tuning</h3>
+		<h4>Group Relative Policy Optimization (GRPO)</h4>
+
+		...
+	
+		<aside class="notes">
+			<div class="fr-notes">
+			</div>
+			<div class="en-notes">
+
+			</div>
+		</aside>
+	</section> -->
+
+	<!-- ------------------------------------------------------ -->
+	
+	<!-- Slide: Reasoning-based fine-tuning (context - DeepSeek) -->
+	<section>
+		<h3>Reasoning-based fine-tuning</h3>
+		<h4>Group Relative Policy Optimization (GRPO)</h4>
+
+		<img width="100%" src="assets/rl_llm/grpo_7.png" />
+		<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+			Source: Julia Turc
+		</figcaption>
+	
+		<aside class="notes">
+			<div class="fr-notes">
+			</div>
+			<div class="en-notes">
+The reinforcement Learning algorithm used in DeepSeek-R1 is called <b>Group Relative Policy Optimization</b> algorithm (or GRPO).
+
+It is very similar to PPO except that it uses a different advantage estimation method.
+The critic network is removed and the advantage is computed by normalizing the returns
+across a group of episodes.
+
+That is to say, for each prompt to assess, multiple rollouts are performed,
+and the advantage is computed by normalizing the returns of these rollouts.
+
+Removing the critic network simplifies and fasten the training.
+			</div>
+		</aside>
+	</section>
+
+	<!-- ------------------------------------------------------ -->
+	
+	<!-- Slide: Reasoning-based fine-tuning (context - DeepSeek) -->
+	<section>
+		<h3>Reasoning-based fine-tuning</h3>
+		<h4>GRPO</h4>
+
+		$$
+		\theta \leftarrow \theta + \sum_{t=0}^{T-1} \nabla_{\theta} \log \pi_{\theta}(a_t \mid s_t) \cdot \bigl(G_t - b(s_t)\bigr)
+		$$
+	
+		<aside class="notes">
+			<div class="fr-notes">
+			</div>
+			<div class="en-notes">
+			</div>
+		</aside>
+	</section>
+
+	<!-- ------------------------------------------------------ -->
+	
+	<!-- Slide: Reasoning-based fine-tuning (context - DeepSeek) -->
+	<section data-transition="none">
+		<h3>Reasoning-based fine-tuning</h3>
+		<h4>GRPO</h4>
+
+		<img width="100%" src="assets/rl_llm/grpo_1.png" />
+		<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+			Source: Julia Turc
+		</figcaption>
+	
+		<aside class="notes">
+			<div class="fr-notes">
+			</div>
+			<div class="en-notes">
+			</div>
+		</aside>
+	</section>
+
+	<!-- ------------------------------------------------------ -->
+	
+	<!-- Slide: Reasoning-based fine-tuning (context - DeepSeek) -->
+	<section data-transition="none">
+		<h3>Reasoning-based fine-tuning</h3>
+		<h4>GRPO</h4>
+
+		<img width="100%" src="assets/rl_llm/grpo_2.png" />
+		<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+			Source: Julia Turc
+		</figcaption>
+	
+		<aside class="notes">
+			<div class="fr-notes">
+			</div>
+			<div class="en-notes">
+			</div>
+		</aside>
+	</section>
+
+	<!-- ------------------------------------------------------ -->
+	
+	<!-- Slide: Reasoning-based fine-tuning (context - DeepSeek) -->
+	<section>
+		<h3>Reasoning-based fine-tuning</h3>
+		<h4>GRPO</h4>
+
+		<p style="font-size: 0.5em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;">
+		$$
+		\theta \leftarrow \theta + \sum_{t=0}^{T-1} \nabla_{\theta} \log \pi_{\theta}(a_t \mid s_t) \cdot \bigl(G_t - b(s_t)\bigr)
+		$$
+
+		Becomes...
+		$$
+		\theta \leftarrow \theta + \sum_{t=0}^{T-1} \nabla_{\theta} \log \pi_{\theta}(a_t \mid s_t) \cdot (R - B)
+		$$
+		
+		$$
+		\theta \leftarrow \theta + \sum_{t=0}^{T-1} \nabla_{\theta} \log \pi_{\theta}(a_t \mid s_t) \cdot A_t
+		$$
+		
+		$$
+		A_t = \frac{R - \mathrm{mean}(r_g)}{\mathrm{std}(r_g)}
+		$$
+		</p>
+		
+		<aside class="notes">
+			<div class="fr-notes">
+			</div>
+			<div class="en-notes">
+			</div>
+		</aside>
+	</section>
+
+	<!-- ------------------------------------------------------ -->
+	
+	<!-- Slide: Reasoning-based fine-tuning (context - DeepSeek) -->
+	<section>
+		<h3>Reasoning-based fine-tuning</h3>
+		<h4>GRPO</h4>
+
+		<p style="font-size: 0.5em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;">
+		$$
+		\begin{align}
+		L^{PPO} &= \sum_{t=0}^{T-1} \min \Bigl( r_{\theta} \cdot A_t,\; \mathrm{clip}(r_{\theta}, 1 - \epsilon, 1 + \epsilon) \cdot A_t \Bigr) \\[6pt]
+		r_{\theta} &= \frac{\pi_{\theta}(a_t \mid s_t)}{\pi_{\theta_{\text{old}}}(a_t \mid s_t)} \\[6pt]
+		L^{GRPO} &= L^{PPO} - \beta \, D_{KL}\!\left[\pi_{\theta} \,\|\, \pi_{\text{ref}}\right]
+		\end{align}
+		$$
+		</p>
+		
+		<aside class="notes">
+			<div class="fr-notes">
+			</div>
+			<div class="en-notes">
+			</div>
+		</aside>
+	</section>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: RLHF (Results) -->
+<section>
+	<h3>DeepSeek-R1-Zero</h3>
+	<h4>Results</h4>
+
+	<img width="60%" src="assets/rl_llm/deepseek_r1_zero_results.png" />
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 1em;">
+		Source: <a href="https://arxiv.org/pdf/2501.12948">Guo, D., Yang, D., Zhang, H., Song, J., Zhang, R., Xu, R., ... & He, Y. (2025). Deepseek-r1: Incentivizing reasoning capability in llms via reinforcement learning. arXiv preprint arXiv:2501.12948.</a>
+	</figcaption>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+The DeepSeek-R1-Zero model generated significant attention upon release as the first open LLM
+fine-tuned exclusively with RL (without supervised fine-tuning) to outperform leading proprietary models on reasoning benchmarks.
+
+This result highlights the potential of RL-based methods for enhancing reasoning capabilities in large language models.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: GRPO/DeepSeek-R1 references -->
+<section>
+	<h3>GRPO / DeepSeek-R1</h3>
+	<h4>References</h4>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>References:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>
+			<a href="https://arxiv.org/pdf/2402.03300" target="_blank">
+				Shao, Z., Wang, P., Zhu, Q., Xu, R., Song, J., Bi, X., ... & Guo, D. (2024). Deepseekmath: Pushing the limits of mathematical reasoning in open language models. arXiv preprint arXiv:2402.03300.
+			</a>
+		</li>
+		<li>
+			<a href="https://arxiv.org/pdf/2501.12948" target="_blank">
+				Guo, D., Yang, D., Zhang, H., Song, J., Zhang, R., Xu, R., ... & He, Y. (2025). Deepseek-r1: Incentivizing reasoning capability in llms via reinforcement learning. arXiv preprint arXiv:2501.12948.
+			</a>
+		</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Hugging Face TRL -->
+<section>
+	<h3>Practical opensource implementations</h3>
+	<h4>🤗 Hugging Face TRL</h4>
+				
+	<img width="100%" src="assets/rl_llm/trl_banner_dark.png" />
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: HuggingFace Open-R1 -->
+<section>
+	<h3>Practical opensource implementations</h3>
+	<h4>🤗 Hugging Face TRL</h4>
+
+	<p style="font-size: 0.7em;">
+		"TRL is a full stack library where we provide a set of tools to train transformer language models with methods like <b>Supervised Fine-Tuning (SFT)</b>,
+		<b>Group Relative Policy Optimization (GRPO)</b>,
+		<b>Direct Preference Optimization (DPO)</b>,
+		Reward Modeling, and more.
+		The library is integrated with 🤗 transformers."<br>
+		<a href="https://huggingface.co/docs/trl/en/index">https://huggingface.co/docs/trl/</a>
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Practical opensource implementations -->
+<section>
+	<h3>Practical opensource implementations</h3>
+				
+	<img width="70%" src="assets/rl_llm/open_r1.png" />
+
+	<p style="font-size: 0.7em;">
+		<a href="https://huggingface.co/blog/open-r1">https://huggingface.co/blog/open-r1</a>
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- endregion -->

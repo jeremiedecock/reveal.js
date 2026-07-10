@@ -1,0 +1,877 @@
+<!-- @preview /rl_hierarchical.html -->
+<!-- #region -->
+
+<!-- Slide: Intuitive Example -->
+<section>
+	<h3>Hierarchical RL</h3>
+	<h4>Introduction</h4>
+
+	<p style="font-size: 0.8em;">Human analogy: planning a trip vs. walking to the station</p>
+	
+	<img width="50%" src="assets/rl_hierarchical/trip.png" />
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+One of the things humans excel at is breaking down a complex task into smaller, more manageable subproblems.
+We solve these subtasks one by one and then combine their solutions to address the original challenge.
+
+Importantly, these subtasks often operate at different levels of abstraction compared to the overall goal.
+
+For example, imagine planning a trip from your home to a hotel room in a distant city.
+You don't think about every single foot step or body movement you need to take to reach the hotel.
+But that's what a classical reinforcement learning agent would do if it were tasked with this problem.
+
+Instead, at the highest level, you might decide which flight to book and which airport to land at.
+Each of these choices then leads to mid-level decisions, such as which train to take before or after the flight.
+Finally, these can be broken down into low-level actions, like choosing whether to take the metro, a bus, or a taxi to reach the hotel.
+
+This way of thinking—structuring decisions at multiple levels of abstraction—is precisely what Hierarchical Reinforcement Learning aims to capture.
+
+Hierarchical Reinforcement Learning, studies this real-world-inspired approach to problem solving.
+		</div>
+	</aside>
+</section>
+
+<!-- Slide: Intuitive Example -->
+<section>
+	<h3>Hierarchical RL</h3>
+	<h4>Introduction</h4>
+
+	<img width="50%" src="assets/rl_hierarchical/robot.png" />
+
+	<!-- Placeholder: insert a diagram showing hierarchical decision-making (high-level vs. low-level actions).
+			Objective: illustrate how HRL decomposes tasks. -->
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- Slide 2: What is Hierarchical RL? -->
+<section>
+	<h3>Hierarchical RL</h3>
+	<h4>What and Why?</h4>
+	<ul>
+		<li>Decompose complex tasks into simpler subtasks</li>
+		<li>Learn policies at multiple levels of abstraction</li>
+		<li>Motivation: scalability, efficiency, transferability</li>
+	</ul>
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+Hiearchical approache can exploit structure in sequential decision-making problems to decompose it into simpler subtasks.
+
+
+TODO: p.263
+		</div>
+	</aside>
+</section>
+
+<!-- Slide: Applications -->
+<section>
+	<h3>Hierarchical RL</h3>
+	<h4>Applications</h4>
+	<p style="font-size:0.8em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 3em;">Some problems have natural hierarchical structure</p>
+	<ul style="font-size: 0.8em; padding-left: 1em; display: block; margin-left: 3em;">
+		<li><b>Navigation tasks</b>: route planning + motor control</li>
+		<li><b>Multi-agent systems</b>: hierarchical team organization</li>
+		<li><b>Robotics</b>: task planning + low-level control</li>
+		<li><b>Game playing</b>: strategy + tactical execution</li>
+	</ul>
+	<aside class="notes">
+		<div class="fr-notes">
+			La HRL est utilisée en robotique, jeux, NLP, véhicules autonomes, etc.
+		</div>
+		<div class="en-notes">
+It is more or less easy to exploit hierarchical structure depending on the problem.
+
+Some environments have a natural hierarchical structure that can be exploited:
+- Navigation tasks: high-level route planning and low-level motor control.
+- Multi-agent problems: divide into hieratchical teams.
+		</div>
+	</aside>
+</section>
+
+<!-- Slide 4: Advantages -->
+<section>
+	<h3>Hierarchical RL</h3>
+	<h4>Advantages</h4>
+	<ul style="font-size: 0.8em;">
+		<li>Improved sample efficiency</li>
+		<li>Better exploration</li>
+		<li>Transfer and reuse of subpolicies</li>
+		<li>Scalability to complex tasks</li>
+	</ul>
+
+	<img width="40%" src="assets/rl_hierarchical/starcraft.png" />
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+- Improved sample efficiency: learning at multiple levels can speed up convergence.
+- Better exploration: high-level policies can guide exploration more effectively.
+- Transfer and reuse of subpolicies: learned skills can be reused across tasks.
+- Scalability to complex tasks: allow the agent to solve larger more compex problems.
+
+TODO: p.265
+		</div>
+	</aside>
+</section>
+
+<!-- Slide: Drawbacks -->
+<!-- <section class="draft">
+	<h3>Hierarchical RL</h3>
+	<h4>Disadvantages</h4>
+	<ul>
+		<li>Works better when there is <em>domain knowledge</em> available about the structure of the problem</li>
+		<li>Increased algorithmic complexity</li>
+		<li>Subgoal discovery is non-trivial</li>
+		<li>Can miss the global optimum</li>
+	</ul>
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+TODO: p.266
+		</div>
+	</aside>
+</section> -->
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide:  -->
+<section>
+	<h3>Hierarchical RL</h3>
+	<h4>Challenges</h4>
+	<ul style="font-size: 0.8em; padding-left: 1em; display: block; margin-left: 3em;">
+		<li>Find subgoals</li>
+		<li>Find a meta-policy over these subgoals</li>
+		<li>Find subpolicies for these subgoals</li>
+	</ul>
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+A Hierarchical Reinforcement Learning algorithm tries to solve
+Sequential Decision Problems more efficently by
+- identifiying common substructures
+- reusing subpolicies to solve them
+
+The hierarchical approache has 3 challenges:
+- find subgoals
+- find a meta-policy over these subgoals
+- find subpolicies for these subgoals
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: title (subtitle) -->
+<section>
+	<h3>The options framework</h3>
+	<!-- <h4>subtitle</h4> -->
+
+	<p style="font-size: 0.8em;">
+		Sutton, R. S., Precup, D., & Singh, S. (1999).
+		<a href="https://www.sciencedirect.com/science/article/pii/S0004370299000521" target="_blank">Between MDPs and semi-MDPs: A framework for temporal abstraction in reinforcement learning.</a>
+		<em>Artificial Intelligence, 112</em>(1-2), 181-211.
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+To formalize hierarchical reinforcement learning, we need a framework that can represent actions at multiple levels of abstraction.
+The options framework, introduced by Sutton et al. in 1999, provides such a formalism.
+
+It formalizes the concept of subgoals and subpolicies, allowing an agent to operate at different temporal scales.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: The options framework (subtitle) -->
+<section>
+	<h3>The options framework</h3>
+	<h4>Motivation: Temporal Abstraction in RL</h4>
+
+	<ul style="font-size: 0.7em;">
+		<li>Standard MDPs only support <b>primitive actions</b> at each timestep.</li>
+		<li>Need: a way to represent and learn <b>temporally extended behaviors</b>.</li>
+		<li>Goal: extend RL framework minimally to include such <b>temporal abstractions</b>.</li>
+	</ul>
+
+	<p style="font-size: 0.7em;">
+		👉 Solution:
+		Extend standard MDPs to support <b>temporally extended actions</b> called <b>options</b>
+	</p>
+
+	<!-- <img width="30%" src="assets/rl_hierarchical/mdp-smdp.png" />
+	<figcaption style="font-size: 0.4em; text-align: center; margin-bottom: 3em;">
+		Source: Hutsebaut-Buysse M, Mets K, Latré S. <a href="https://www.sciencedirect.com/science/article/pii/S0004370299000521" target="_blank">Hierarchical Reinforcement Learning: A Survey and Open Research Challenges. Machine Learning and Knowledge Extraction.</a>,  2022; 4(1):172-221. https://doi.org/10.3390/make4010009.
+	</figcaption> -->
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+Standard MDPs only support <b>primitive actions</b> at each timestep.
+
+To do Hierarchical RL, we need a way to represent and learn <b>temporally extended behaviors</b>.
+
+The goal is extend RL framework to include such <b>temporal abstractions</b> but in a minimal way.
+
+A solution to this is the "options framework": it extends the standard MDP framework to include temporally extended actions called "options."
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: The options framework (subtitle) -->
+<section>
+	<h3>The options framework</h3>
+	<h4>What is an Option?</h4>
+
+	<ul style="font-size: 0.7em;">
+		<li>Some states are designated as <b>subgoals</b></li>
+		<li>At a subgoal, the agent can choose an <b>option</b> (macro-action) instead of a <b>primitive action</b></li>
+		<li>Options are sequences of primitive actions grouped together</li>
+		<li>Executing an option means executing this sequence of actions</li>
+	</ul>
+
+	<img width="30%" src="assets/rl_hierarchical/mdp-smdp2.png" />
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+The idea of options is simple :
+Some states in the environment are defined as "<em>subgoals</em>".
+
+When the agent reaches one of these subgoal states, it can choose to execute an "<em>option</em>" (or "macro-action")
+instead of a "<em>primitive action</em>".
+
+So an option is a sequence of primitive actions with grouped together.
+
+Executing an option means executing this sequence of actions.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: The options framework (subtitle) -->
+<section>
+	<h3>The options framework</h3>
+	<h4>What is an Option?</h4>
+
+	<p style="font-size: 0.7em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;">
+		An option $\omega$ is defined by a triple:
+		$$\omega = \langle I, \pi, \beta \rangle$$
+	</p>
+	<table style="font-size: 0.6em; border-collapse: collapse; width: 100%;">
+		<tr>
+			<td style="vertical-align: top; border: none; padding-right: 1em;">$I_{\omega}$</td>
+			<td style="vertical-align: top; border: none;">
+				The <b>initiation set</b> $I \subseteq \mathcal{S}$ states where the option can be chosen.
+			</td>
+		</tr>
+		<tr>
+			<td style="vertical-align: top; border: none; padding-right: 1em;">$\pi_{\omega}(a|s)$</td>
+			<td style="vertical-align: top; border: none;">
+				The <b>subpolicy</b> $\pi : \mathcal{S} \times \mathcal{A} \rightarrow [0, 1]$ controls which primitive actions are taken while the option runs (here a stochastic policy).
+			</td>
+		</tr>
+		<tr>
+			<td style="vertical-align: top; border: none; padding-right: 1em;">$\beta_{\omega}(s)$</td>
+			<td style="vertical-align: top; border: none;">
+				The <b>termination condition</b> $\beta : \mathcal{S} \rightarrow [0, 1]$ tells us if $\omega$ terminates in $s$.
+			</td>
+		</tr>
+	</table>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+More formally,
+
+an option consists of three components:
+- An initiation set I: defines the states where the option can be initiated.
+- A subpolicy π: defines the behavior of the option. It is internal to the option.
+- A termination condition β: specifies when the option should terminate.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: The options framework (subtitle) -->
+<section>
+	<h3>The options framework</h3>
+	<!-- <h4>subtitle</h4> -->
+
+	<br>
+	<p>
+		The set of all options is denoted by $\Omega$.
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: The options framework (subtitle) -->
+<section>
+	<h3>The options framework</h3>
+	<!-- <h4>subtitle</h4> -->
+
+	<p style="font-size: 0.7em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;">
+		There are two kinds of policies in the options framework:
+	</p>
+	<ul style="font-size: 0.7em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>The <b>meta-policy</b> over options $\pi_{\Omega}(\omega|s)$, which selects which option to execute when the agent is in a state that belongs to the initiation set of one or more options.</li>
+		<li>The <b>subpolicy</b> of each option $\pi_{\omega}(a|s)$, which defines the behavior while the option is being executed.</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+There are two kinds of policies in the options framework:
+- The meta-policy over options, which selects which option to execute when the agent is in a
+state that belongs to the initiation set of one or more options.
+- The subpolicy of each option, which defines the behavior while the option is being executed.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: The options framework (subtitle) -->
+<section>
+	<h3>The options framework</h3>
+	<!-- <h4>subtitle</h4> -->
+
+	<br>
+	<p style="font-size: 0.8em;">
+		The <b>subpolicies</b> $\pi_{\omega}$ are short macros to get from $I_{\omega}$ to $\beta_{\omega}$ quickly.
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: The options framework (subtitle) -->
+<section>
+	<h3>The options framework</h3>
+
+	<p style="font-size: 0.8em;">
+		"Temporal abstraction mix actions of different granularities, short and long, primitive actions and subpolicys.
+		They allow traveling from $I$ to $\beta$ without additional learning, using a previously provided or learned subpolicy."
+		(Plaat., 2022)
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+This temporal abstraction mix actions of different granularities,
+short and long,
+primitive actions and subpolicys.
+
+They allow traveling from $I$ to $\beta$
+without additional learning,
+using a previously provided or learned subpolicy.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: The options framework (subtitle) -->
+<section>
+	<h3>The options framework</h3>
+	<h4>The rooms example</h4>
+
+	<img width="50%" src="assets/rl_hierarchical/options.png" />
+	<ul style="font-size: 0.7em;">
+		<li>A gridworld environment with stochastic cell-to-cell actions and room-to-room hallway options.</li>
+		<li>Two of the hallway options are suggested by the arrows labeled o1 and o2.</li>
+		<li>The labels G1 and G2 indicate two locations used as goals in experiments described in the text.</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+This figure illustrates the options framework using a simple gridworld environment.
+
+The environment consists of four rooms connected by hallways.
+The agent can move between adjacent cells using primitive actions (up, down, left, right).
+
+However, the agent can also execute options that correspond to navigating through hallways.
+
+In hierarchical reinforcement learning, the hallways between rooms are bottleneck states and are natural subgoals.
+
+For example, option o1 might represent the behavior of moving from the top-left room to the bottom-left room through the hallway.
+Similarly, option o2 could represent moving from the bottom-left room to the bottom-right room.
+
+These options allow the agent to operate at a higher level of abstraction, making it easier to plan and learn in this environment.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Finding Subgoals and learning subpolicies (subtitle) -->
+<section>
+	<h3>Finding Subgoals and learning subpolicies</h3>
+	<!-- <h4>subtitle</h4> -->
+
+	<p style="font-size: 0.8em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;">
+		In the original options framework, these elements are given:
+	</p>
+	<ul style="font-size: 0.8em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Subgoals</li>
+		<li>Subpolicies</li>
+		<li>Meta-policy</li>
+	</ul>
+	<p style="font-size: 0.8em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;">
+		But, in practice, these components often need to be learned.
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+The original options framework assumes that the structure of the problem is obvious and that
+the subgoals, subpolicies, and meta-policy are given.
+
+But, in real world applications, these components often need to be learned.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Algorithms (subtitle) -->
+<section>
+	<h3>Finding Subgoals and learning subpolicies</h3>
+
+	<p style="font-size: 0.85em;">
+		👉 We need algorithms that can <b>find subgoals</b> and <b>learn subpolicies</b>
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+So we need algorithms that can <b>find subgoals</b> and <b>learn subpolicies</b>
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Algorithms (subtitle) -->
+<section>
+	<h3>Some algorithms</h3>
+	<h4>For continuous spaces</h4>
+
+	<ul style="font-size: 0.8em;">
+		<li>Feudal Networks</li>
+		<li>Option-Critic</li>
+		<li>HIRO</li>
+		<li>Hierarchical Actor-Critic (HAC)</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+I'll mention some of the main Hierachical Reinforcement Learning algorithms
+that can be applied to environments with continuous state and action spaces:
+- Feudal Networks,
+- Option-Critic,
+- HIRO, and
+- Hierarchical Actor-Critic (HAC).
+
+I'll give a very brief overview of each
+but we will focus more on Hierarchical Actor-Critic
+since it is one of the most practical and effective methods.
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Feudal Networks (subtitle) -->
+<section>
+	<h3>Feudal Networks</h3>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Key Idea:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Inspired by <em>Feudal RL</em> (<a href="https://proceedings.neurips.cc/paper/1992/file/d14220ee66aeec73c49038385428ec4c-Paper.pdf" target="_blank">Dayan &amp; Hinton, 1992</a>): a <b>Manager–Worker hierarchy</b>.</li>
+		<li><b>Manager</b> sets abstract goals in a latent space.</li>
+		<li><b>Worker</b> executes primitive actions conditioned on these goals.</li>
+	</ul>
+
+	<!-- <p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Architecture (Vezhnevets et al., 2016 – FeUdal Networks)</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li><b>Manager</b>:
+			<ul>
+				<li>Receives state representation.</li>
+				<li>Outputs a <em>goal vector</em> in latent space (directional embedding).</li>
+				<li>Trained with a long-term extrinsic reward.</li>
+			</ul>
+		</li>
+		<li><b>Worker</b>:
+			<ul>
+				<li>Receives current state and goal vector.</li>
+				<li>Outputs primitive action.</li>
+				<li>Trained with <em>intrinsic reward</em>: cosine similarity between achieved state-change and Manager’s goal vector.</li>
+			</ul>
+		</li>
+	</ul> -->
+
+	<!-- <p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Training Signals</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Manager learns to propose meaningful abstract goals (long horizon).</li>
+		<li>Worker learns to follow goals locally (short horizon).</li>
+		<li>End-to-end differentiable; intrinsic reward provides stable credit assignment.</li>
+	</ul> -->
+
+	<!-- <p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Advantages</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Decomposes long-term tasks into subgoals.</li>
+		<li>Encourages exploration via high-level goals.</li>
+		<li>Mitigates vanishing reward signal in sparse-reward environments.</li>
+	</ul> -->
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Tested on (<a href="https://proceedings.neurips.cc/paper_files/paper/2016/file/c4492cbe90fbdbf88a5aec486aa81ed5-Paper.pdf" target="_blank">Vezhnevets et al., 2016</a>):</b> Atari games</p>
+	<!-- <ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Atari games (sparse reward, long-term credit assignment).</li>
+		<li>Continuous control tasks.</li>
+	</ul> -->
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Achievements:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Learned effective <b>temporal abstractions</b> (macro-actions).</li>
+		<li>Showed <b>faster learning</b> and better <b>exploration</b> on hard sparse-reward environments compared to flat deep RL (DQN, A3C).</li>
+		<li>Demonstrated that latent goal vectors can guide behavior without explicit subgoal supervision.</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Feudal Networks (subtitle) -->
+<section>
+	<h3>Feudal Networks</h3>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Position Today:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Pioneered the <b>goal-setting HRL</b> paradigm.</li>
+		<!-- <li>Sparked follow-ups (e.g., Option-Critic, HIRO, HAC, H-DQN).</li> -->
+		<li>However: rarely used in practice now
+			<ul>
+				<li>Instability in training.</li>
+				<li>Limited scalability to very complex tasks.</li>
+			</ul>
+		</li>
+		<li><b>Key historical impact</b>: introduced <em>intrinsic goal representations</em> and the idea of <b>end-to-end differentiable hierarchy</b>, still influential in modern HRL research.</li>
+	</ul>
+
+	<!-- <p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Limitations / Assumptions of Feudal Networks</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li><b>Goal Space Design</b>: Assumes that useful subgoals can be represented as directions in a learned latent space.</li>
+		<li><b>Two-Level Hierarchy Only</b>: Fixed Manager–Worker structure, not easily generalizable to deeper hierarchies.</li>
+		<li><b>Intrinsic Reward Shaping</b>: Relies on cosine similarity between state-changes and goals — assumes this aligns with extrinsic objectives.</li>
+		<li><b>Training Stability</b>: Hierarchical credit assignment is still difficult; Manager may propose unhelpful or inconsistent goals.</li>
+		<li><b>Generalization</b>: Success mostly shown on Atari and simple continuous control; scaling to more complex, real-world environments remains challenging.</li>
+	</ul> -->
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>References:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>
+			<a href="https://proceedings.neurips.cc/paper/1992/file/d14220ee66aeec73c49038385428ec4c-Paper.pdf" target="_blank">
+				Dayan, P., & Hinton, G. E. (1992). Feudal reinforcement learning. Advances in neural information processing systems, 5.
+			</a>
+		</li>
+		<li>
+			<a href="https://proceedings.neurips.cc/paper_files/paper/2016/file/c4492cbe90fbdbf88a5aec486aa81ed5-Paper.pdf" target="_blank">
+				Vezhnevets, A., Mnih, V., Osindero, S., Graves, A., Vinyals, O., & Agapiou, J. (2016). Strategic attentive writer for learning macro-actions. Advances in neural information processing systems, 29.
+			</a>
+		</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Option-Critic (subtitle) -->
+<section>
+	<h3>Option-Critic</h3>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Key Idea:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>A <b>Policy gradient</b> algorithm.</li>
+		<li>Learn <em>intra-option policies</em>, <em>termination functions</em>, and a <em>policy over options</em> <!--<b>end-to-end via gradient descent</b>-->.</li>
+		<!-- <li>The agent autonomously discovers useful temporal abstractions.</li> -->
+	</ul>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Tested on:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Four-room navigation domain</li>
+		<li>Atari 2600 (Arcade Learning Environment)</li>
+		<li>Continuous control (PinBall)</li>
+	</ul>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Achievements:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>First fully differentiable framework for learning options.</li>
+		<li>Demonstrated that options can <em>emerge naturally</em> without hand-crafted subgoals.</li>
+		<li>Improved sample efficiency and exploration compared to flat RL baselines.</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: Option-Critic (subtitle) -->
+<section>
+	<h3>Option-Critic</h3>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Position Today:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>A <b>foundational baseline</b> for HRL; many later works extend it (e.g., option discovery, regularization, diversity constraints).</li>
+		<li>Still conceptually influential, though modern state-of-the-art often favors <em>skill discovery methods</em> (e.g., DIAYN, VALOR) or <em>hierarchical RL with pretrained skills</em>.</li>
+	</ul>
+	
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>References:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>
+			<a href="https://ojs.aaai.org/index.php/AAAI/article/download/10916/10775" target="_blank">
+				Bacon, P. L., Harb, J., & Precup, D. (2017, February). The option-critic architecture. In Proceedings of the AAAI conference on artificial intelligence (Vol. 31, No. 1).
+			</a>
+		</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: HIRO -->
+<section>
+	<h3>HIRO</h3>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Key Idea:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<!-- <li>Two-level hierarchy:
+			<ul>
+				<li><b>High-level policy</b> outputs <em>goals</em> (desired relative changes in state).</li>
+				<li><b>Low-level policy</b> executes primitive actions to reach these goals.</li>
+			</ul>
+		</li> -->
+		<li>Relabeling mechanism: high-level goals are <em>retrospectively adjusted</em> to match what the low-level actually achieved &rarr; improves sample efficiency and stability.</li>
+	</ul>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Tested on:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Ant (Mujoco like).</li>
+	</ul>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Achievements:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Demonstrated <em>significant gains in sample efficiency</em> vs. flat RL.</li>
+		<li>Learned effective long-horizon behaviors in sparse-reward settings.</li>
+		<!-- <li>Pioneered a <em>practical</em> method for hierarchical credit assignment.</li> -->
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: HIRO -->
+<section>
+	<h3>HIRO</h3>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Position Today:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Considered a <b>foundational baseline</b> for HRL.</li>
+		<li>Later methods (e.g. HAC, CHER, HIGL, HiPPO) refine stability, exploration, or scalability.</li>
+		<li>Still cited as one of the <em>most influential HRL approaches</em> for continuous control with sparse rewards.</li>
+	</ul>
+	
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>References:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>
+			<a href="https://proceedings.neurips.cc/paper/2018/file/e6384711491713d29bc63fc5eeb5ba4f-Paper.pdf" target="_blank">
+				Nachum, O., Gu, S. S., Lee, H., & Levine, S. (2018). Data-efficient hierarchical reinforcement learning. Advances in neural information processing systems, 31.
+			</a>
+		</li>
+		<li>
+			Related work: <a href="https://arxiv.org/pdf/1810.01257" target="_blank">
+				Nachum, O., Gu, S., Lee, H., & Levine, S. (2018). Near-optimal representation learning for hierarchical reinforcement learning. arXiv preprint arXiv:1810.01257.
+			</a>
+		</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: HAC -->
+<section>
+	<h3>Hierarchical Actor-Critic</h3>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Key Idea:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Train multiple policy levels, each setting goals for the level below.</li>
+		<li>Use <em>Hindsight Experience Replay</em> extended to hierarchical goals (“hindsight action transitions”) to stabilize non-stationary training.</li>
+		<!-- <li>Enables learning of multi-level hierarchies <b>end-to-end</b>, without pre-defined subgoals.</li> -->
+	</ul>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Tested on:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>MuJoCo</li>
+	</ul>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Achievements:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Can learn more than two hierarchical levels.</li>
+		<li>Jointly learn multiple level of policies in parallel (subproblems can be solved simultaneously).</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: HAC -->
+<section>
+	<h3>Hierarchical Actor-Critic</h3>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>Position Today:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>Pioneering work: first to show multi-level hierarchical RL with hindsight replay.</li>
+		<li>Inspired many follow-ups in hierarchical goal-conditioned RL.</li>
+		<!-- <li>Limitations: sample inefficiency, brittle in high-dimensional tasks; largely surpassed by recent methods (e.g., skill discovery, options with transformers, world models).</li> -->
+	</ul>
+
+	<p style="font-size: 0.65em; margin-top: 1em; text-align: left; margin-bottom: 0em; margin-left: 1em;"><b>References:</b></p>
+	<ul style="font-size: 0.65em; padding-left: 1em; display: block; margin-left: 1em;">
+		<li>
+			<a href="https://arxiv.org/pdf/1712.00948" target="_blank">
+				Levy, A., Konidaris, G., Platt, R., & Saenko, K. (2017). Learning multi-level hierarchies with hindsight. arXiv preprint arXiv:1712.00948
+			</a>
+		</li>
+	</ul>
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Slide: HAC -->
+<section>
+	<h3>Hierarchical Actor-Critic</h3>
+
+	<img width="100%" src="assets/rl_hierarchical/hac.png" />
+
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+		</div>
+	</aside>
+</section>
+
+<!-- ------------------------------------------------------ -->
+
+<!-- Video HAC -->
+<section>
+	<h3>Hierarchical Actor-Critic</h3>
+	<h4>Examples</h4>
+	<video src="assets/rl_hierarchical/hac.mp4" controls style="width: 80%; display: block; margin: 0 auto 1em auto;"></video>
+	<figcaption style="font-size: 0.3em; text-align: center; margin-bottom: 3em;">
+		Source: <a href="https://arxiv.org/pdf/1712.00948" target="_blank">Learning multi-level hierarchies with hindsight</a>, Levy et al., 2017.
+	</figcaption>
+	<!-- Levy, A., Konidaris, G., Platt, R., & Saenko, K. (2017). Learning multi-level hierarchies with hindsight. arXiv preprint arXiv:1712.00948. -->
+	<aside class="notes">
+		<div class="fr-notes">
+		</div>
+		<div class="en-notes">
+			<p>
+				...
+			</p>
+		</div>
+	</aside>
+</section>
+
+<!-- endregion -->
