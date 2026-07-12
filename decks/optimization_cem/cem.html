@@ -264,11 +264,25 @@ Overview: the covariance ellipses of the proposal distribution at the beginning 
 					&emsp;<span class="fragment highlight-current-red" data-fragment-index="10">$\boldsymbol{\theta} \leftarrow $ fit $P_{\boldsymbol{\theta}}$ to the elite samples</span> <br>
 				</div>
 			</div>
-			<div style="margin: 0px; padding: 0px;">
+			<div class="fragment fade-out" data-fragment-index="14" style="margin: 0px; padding: 0px;">
 				<div class="fragment" data-fragment-index="11">
 					&emsp;<span class="fragment highlight-current-red" data-fragment-index="11">$\text{samples} \leftarrow \{\boldsymbol{x}^{(1)}, \dots, \boldsymbol{x}^{(m)}\}$ with $\boldsymbol{x}^{(i)} \sim P_{\boldsymbol{\theta}} ~ \forall i \in \{1, \dots, m\}$</span><br>
 					&emsp;<span class="fragment highlight-current-red" data-fragment-index="12">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. the samples with the lowest $f$ values)</span> <br>
 					&emsp;<span class="fragment highlight-current-red" data-fragment-index="13">$\boldsymbol{\theta} \leftarrow $ fit $P_{\boldsymbol{\theta}}$ to the elite samples</span> <br>
+				</div>
+			</div>
+			<div class="fragment fade-out" data-fragment-index="17" style="margin: 0px; padding: 0px;">
+				<div class="fragment" data-fragment-index="14">
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="14">$\text{samples} \leftarrow \{\boldsymbol{x}^{(1)}, \dots, \boldsymbol{x}^{(m)}\}$ with $\boldsymbol{x}^{(i)} \sim P_{\boldsymbol{\theta}} ~ \forall i \in \{1, \dots, m\}$</span><br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="15">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. the samples with the lowest $f$ values)</span> <br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="16">$\boldsymbol{\theta} \leftarrow $ fit $P_{\boldsymbol{\theta}}$ to the elite samples</span> <br>
+				</div>
+			</div>
+			<div style="margin: 0px; padding: 0px;">
+				<div class="fragment" data-fragment-index="17">
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="17">$\text{samples} \leftarrow \{\boldsymbol{x}^{(1)}, \dots, \boldsymbol{x}^{(m)}\}$ with $\boldsymbol{x}^{(i)} \sim P_{\boldsymbol{\theta}} ~ \forall i \in \{1, \dots, m\}$</span><br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="18">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. the samples with the lowest $f$ values)</span> <br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="19">$\boldsymbol{\theta} \leftarrow $ fit $P_{\boldsymbol{\theta}}$ to the elite samples</span> <br>
 				</div>
 			</div>
 		</div>
@@ -280,7 +294,7 @@ Overview: the covariance ellipses of the proposal distribution at the beginning 
 			un jeton "itération:phase" par data-fragment-index, cachée avant le premier fragment -->
 	<div style="padding: 0; position: absolute; top: 0; right: 0;">
 		<svg class="cem-rosenbrock-fig" width="275" height="262"
-				data-frames="1:objective 1:proposal 1:samples 1:elite 1:fit 2:samples 2:elite 2:fit 3:samples 3:elite 3:fit 4:samples 4:elite 4:fit"></svg>
+				data-frames="1:objective 1:proposal 1:samples 1:elite 1:fit 2:samples 2:elite 2:fit 3:samples 3:elite 3:fit 4:samples 4:elite 4:fit 5:samples 5:elite 5:fit 6:samples 6:elite 6:fit"></svg>
 	</div>
 	<script type="module" src="assets/optimization_cem/cem_rosenbrock.ts"></script>
 
