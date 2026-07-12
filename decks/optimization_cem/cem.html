@@ -12,21 +12,22 @@
 	<ul style="display: block; text-align: left; margin: 0 0 0 2em;">
 		<li>Called a <em>proposal distribution</em> $P_{\boldsymbol{\theta}}$</li>
 		<li>Used to propose new samples for the next generation</li>
-		<li>Parametrized by $\boldsymbol{\theta}$</li>
-		<li>The family of probability distribution is chosen according to the objective function landscape</li>
+		<li>Parameterized by $\boldsymbol{\theta}$</li>
+		<li>The family of probability distributions is chosen according to the objective function landscape</li>
 	</ul>
 
 	<br>
 
 	<p style="text-align: center;">
-		Usually : multivariate Normal distributions $\boldsymbol{\theta} = (\boldsymbol{\mu}, \ms{\Sigma})$
+		Usually: a multivariate normal distribution with $\boldsymbol{\theta} = (\boldsymbol{\mu}, \ms{\Sigma})$
 	</p>
 
 	<aside class="notes">
 		<div class="fr-notes">
+Choix courant : une loi normale multivariée paramétrée par un vecteur moyenne 𝛍 et une matrice de covariance 𝚺
 		</div>
 		<div class="en-notes">
-Common choice : multivariate Normal distributions parameterized by a mean vector 𝛍 and a covariance matrix 𝚺
+Common choice: a multivariate normal distribution parameterized by a mean vector 𝛍 and a covariance matrix 𝚺
 		</div>
 	</aside>
 </section>
@@ -35,7 +36,7 @@ Common choice : multivariate Normal distributions parameterized by a mean vector
 	<h3>The objective function $f$</h3>
 
 	<p style="font-size: 60%; margin: 0.3em 0;">
-		Example used in the next slides — the <em>Rosenbrock function</em>:
+		Example used in the next slides — the <em>Rosenbrock function</em> (to be minimized):
 		$f(x_1, x_2) = (1 - x_1)^2 + 100 \, (x_2 - x_1^2)^2$
 	</p>
 
@@ -176,8 +177,10 @@ The surface is interactive: drag it with the mouse to show the valley, zoom with
 
 	<aside class="notes">
 		<div class="fr-notes">
+Dérouler les fragments : chaque ligne de l'algorithme est surlignée pendant que la figure montre l'état correspondant (échantillons, élites en rouge, distribution réajustée). Six itérations complètes.
 		</div>
 		<div class="en-notes">
+Step through the fragments: each line of the algorithm is highlighted while the figure shows the corresponding state (samples, elites in red, refitted distribution). Six full iterations.
 		</div>
 	</aside>
 </section>
@@ -211,12 +214,17 @@ The surface is interactive: drag it with the mouse to show the valley, zoom with
 			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="8" data-phase="proposal"></svg>
 		</div>
 	</div>
+	<p style="font-size: 60%; color: #888888; text-align: center; margin: 0.4em 0 0 0;">
+		Evolution of the proposal distribution $P_{\boldsymbol{\theta}}$ (covariance ellipses) at the beginning of each iteration
+	</p>
 	<script type="module" src="assets/optimization_cem/cem_rosenbrock.ts"></script>
 
 	<aside class="notes">
 		<div class="fr-notes">
+Vue d'ensemble : les ellipses de covariance de la distribution de proposition au début de chaque itération. La distribution se contracte le long de la vallée et converge vers le minimum global (1, 1).
 		</div>
 		<div class="en-notes">
+Overview: the covariance ellipses of the proposal distribution at the beginning of each iteration. The distribution shrinks along the valley and converges towards the global minimum (1, 1).
 		</div>
 	</aside>
 </section>
@@ -224,49 +232,49 @@ The surface is interactive: drag it with the mouse to show the valley, zoom with
 <section style="text-align: left; font-size: 65%;">
 	<h3 style="text-align: center;">Cross-Entropy Method</h3>
 
-	<p>
+	<div>
 		<b>Input:</b><br>
 		&emsp;<span class="fragment highlight-current-red" data-fragment-index="0">$f$: the objective function</span><br>
-		&emsp;<span class="fragment highlight-current-red" data-fragment-index="1">$\mathbb{P}$: family of distribution</span><br>
-		&emsp;<span class="fragment highlight-current-red" data-fragment-index="1">$\boldsymbol{\theta}$: initial parameters for the proposal distribution $\mathbb{P}$</span><br>
+		&emsp;<span class="fragment highlight-current-red" data-fragment-index="1">$\mathbb{P}$: family of probability distributions</span><br>
+		&emsp;<span class="fragment highlight-current-red" data-fragment-index="1">$\boldsymbol{\theta}$: initial parameters of the proposal distribution $P_{\boldsymbol{\theta}}$</span><br>
 		<br>
-		<b>Algorithm parameters:</b><br>
+		<b>Meta parameters:</b><br>
 		&emsp;$m$: sample size<br>
-		&emsp;$m_{\text{elite}}$: number of samples to use to fit $\boldsymbol{\theta}$<br>
+		&emsp;$m_{\text{elite}}$: number of best samples used to fit $\boldsymbol{\theta}$<br>
 		<br>
 
-		<b>UNTIL</b> the stop criteria are met<br>
+		<b>WHILE</b> the termination criterion is not met<br>
 		<div class="r-stack">
 			<div class="fragment fade-out" data-fragment-index="5" style="margin: 0px; padding: 0px;">
-				&emsp;<span class="fragment highlight-current-red" data-fragment-index="2">$\text{samples} \leftarrow \{x_1, \dots, x_m\}$ with $x_i \sim \mathbb{P}(\boldsymbol{\theta}) ~ \forall i \in 1 \dots m$</span><br>
-				&emsp;<span class="fragment highlight-current-red" data-fragment-index="3">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. select best samples according to $f$)</span> <br>
-				&emsp;<span class="fragment highlight-current-red" data-fragment-index="4">$\boldsymbol{\theta} \leftarrow $ fit $\mathbb{P}(\boldsymbol{\theta})$ to the elite samples</span> <br>
+				&emsp;<span class="fragment highlight-current-red" data-fragment-index="2">$\text{samples} \leftarrow \{\boldsymbol{x}^{(1)}, \dots, \boldsymbol{x}^{(m)}\}$ with $\boldsymbol{x}^{(i)} \sim P_{\boldsymbol{\theta}} ~ \forall i \in \{1, \dots, m\}$</span><br>
+				&emsp;<span class="fragment highlight-current-red" data-fragment-index="3">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. the samples with the lowest $f$ values)</span> <br>
+				&emsp;<span class="fragment highlight-current-red" data-fragment-index="4">$\boldsymbol{\theta} \leftarrow $ fit $P_{\boldsymbol{\theta}}$ to the elite samples</span> <br>
 			</div>
 			<div class="fragment fade-out" data-fragment-index="8" style="margin: 0px; padding: 0px;">
 				<div class="fragment" data-fragment-index="5">
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="5">$\text{samples} \leftarrow \{x_1, \dots, x_m\}$ with $x_i \sim \mathbb{P}(\boldsymbol{\theta}) ~ \forall i \in 1 \dots m$</span><br>
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="6">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. select best samples according to $f$)</span> <br>
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="7">$\boldsymbol{\theta} \leftarrow $ fit $\mathbb{P}(\boldsymbol{\theta})$ to the elite samples</span> <br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="5">$\text{samples} \leftarrow \{\boldsymbol{x}^{(1)}, \dots, \boldsymbol{x}^{(m)}\}$ with $\boldsymbol{x}^{(i)} \sim P_{\boldsymbol{\theta}} ~ \forall i \in \{1, \dots, m\}$</span><br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="6">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. the samples with the lowest $f$ values)</span> <br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="7">$\boldsymbol{\theta} \leftarrow $ fit $P_{\boldsymbol{\theta}}$ to the elite samples</span> <br>
 				</div>
 			</div>
 			<div class="fragment fade-out" data-fragment-index="11" style="margin: 0px; padding: 0px;">
 				<div class="fragment" data-fragment-index="8">
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="8">$\text{samples} \leftarrow \{x_1, \dots, x_m\}$ with $x_i \sim \mathbb{P}(\boldsymbol{\theta}) ~ \forall i \in 1 \dots m$</span><br>
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="9">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. select best samples according to $f$)</span> <br>
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="10">$\boldsymbol{\theta} \leftarrow $ fit $\mathbb{P}(\boldsymbol{\theta})$ to the elite samples</span> <br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="8">$\text{samples} \leftarrow \{\boldsymbol{x}^{(1)}, \dots, \boldsymbol{x}^{(m)}\}$ with $\boldsymbol{x}^{(i)} \sim P_{\boldsymbol{\theta}} ~ \forall i \in \{1, \dots, m\}$</span><br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="9">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. the samples with the lowest $f$ values)</span> <br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="10">$\boldsymbol{\theta} \leftarrow $ fit $P_{\boldsymbol{\theta}}$ to the elite samples</span> <br>
 				</div>
 			</div>
 			<div style="margin: 0px; padding: 0px;">
 				<div class="fragment" data-fragment-index="11">
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="11">$\text{samples} \leftarrow \{x_1, \dots, x_m\}$ with $x_i \sim \mathbb{P}(\boldsymbol{\theta}) ~ \forall i \in 1 \dots m$</span><br>
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="12">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. select best samples according to $f$)</span> <br>
-					&emsp;<span class="fragment highlight-current-red" data-fragment-index="13">$\boldsymbol{\theta} \leftarrow $ fit $\mathbb{P}(\boldsymbol{\theta})$ to the elite samples</span> <br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="11">$\text{samples} \leftarrow \{\boldsymbol{x}^{(1)}, \dots, \boldsymbol{x}^{(m)}\}$ with $\boldsymbol{x}^{(i)} \sim P_{\boldsymbol{\theta}} ~ \forall i \in \{1, \dots, m\}$</span><br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="12">$\text{elite} \leftarrow$ { $m_{\text{elite}}$ best samples } &nbsp;&nbsp;&nbsp; (i.e. the samples with the lowest $f$ values)</span> <br>
+					&emsp;<span class="fragment highlight-current-red" data-fragment-index="13">$\boldsymbol{\theta} \leftarrow $ fit $P_{\boldsymbol{\theta}}$ to the elite samples</span> <br>
 				</div>
 			</div>
 		</div>
 		<br>
-		<b>RETURN</b> $\boldsymbol{\theta}$
-	</p>
+		<b>RETURN</b> $\boldsymbol{\theta}$ &emsp; <span style="font-size: 80%; color: #888888;">(in practice, the solution estimate is the final mean $\boldsymbol{\mu}$ of $P_{\boldsymbol{\theta}}$)</span>
+	</div>
 
 	<!-- Figure d3.js, données calculées à la volée par le CEM de cem.ts (seed fixée) :
 			un jeton "itération:phase" par data-fragment-index, cachée avant le premier fragment -->
@@ -278,8 +286,10 @@ The surface is interactive: drag it with the mouse to show the valley, zoom with
 
 	<aside class="notes">
 		<div class="fr-notes">
+Pseudo-code complet. Insister sur les deux méta-paramètres m et m_elite, puis dérouler les itérations en synchronisation avec la figure en haut à droite.
 		</div>
 		<div class="en-notes">
+Full pseudo-code. Emphasize the two meta parameters m and m_elite, then step through the iterations in sync with the figure in the top-right corner.
 		</div>
 	</aside>
 </section>
@@ -296,14 +306,44 @@ The surface is interactive: drag it with the mouse to show the valley, zoom with
 
 	<p>
 		with:<br>
-		$k$ = the iteration index<br>
-		$m_{\text{elite}}$ = the number of “elite” (i.e. best) samples
+		$k$ = the iteration index, so that $\boldsymbol{\theta}^{(k+1)} = (\boldsymbol{\mu}^{(k+1)}, \ms{\Sigma}^{(k+1)})$<br>
+		$m_{\text{elite}}$ = the number of “elite” (i.e. best) samples<br>
+		$\boldsymbol{x}^{(1)}, \dots, \boldsymbol{x}^{(m_{\text{elite}})}$ = the elite samples of iteration $k$
 	</p>
 
 	<aside class="notes">
 		<div class="fr-notes">
+La mise à jour est l'estimateur du maximum de vraisemblance calculé sur les seuls échantillons élites : moyenne empirique et covariance empirique.
 		</div>
 		<div class="en-notes">
+The update is the maximum likelihood estimate computed on the elite samples only: empirical mean and empirical covariance.
+		</div>
+	</aside>
+</section>
+
+<section style="text-align: left; font-size: 70%;">
+	<h3 style="text-align: center;">Why “cross-entropy”?</h3>
+
+	<p>
+		Fitting $P_{\boldsymbol{\theta}}$ to the elite samples by maximum likelihood is equivalent to
+		minimizing the <em>cross-entropy</em> $H$ between the empirical distribution
+		$\hat{p}_{\text{elite}}$ of the elite samples and $P_{\boldsymbol{\theta}}$:
+	</p>
+
+	$$\boldsymbol{\theta}^{(k+1)} = \arg\min_{\boldsymbol{\theta}} \; H(\hat{p}_{\text{elite}}, P_{\boldsymbol{\theta}}) = \arg\max_{\boldsymbol{\theta}} \; \frac{1}{m_{\text{elite}}} \sum_{i=1}^{m_{\text{elite}}} \log P_{\boldsymbol{\theta}}(\boldsymbol{x}^{(i)})$$
+
+	<p>
+		Historically, the method comes from <em>rare-event simulation</em>: $P_{\boldsymbol{\theta}}$
+		iteratively approaches the optimal importance-sampling distribution — the one concentrated
+		on the event of interest (here: sampling low values of $f$).
+	</p>
+
+	<aside class="notes">
+		<div class="fr-notes">
+Minimiser la cross-entropy H(p̂, P_θ) = −E_p̂[log P_θ] revient exactement à maximiser la log-vraisemblance des échantillons élites : c'est l'étape « fit » de l'algorithme, d'où le nom de la méthode.
+		</div>
+		<div class="en-notes">
+Minimizing the cross-entropy H(p̂, P_θ) = −E_p̂[log P_θ] is exactly maximizing the log-likelihood of the elite samples: this is the “fit” step of the algorithm, hence the method's name.
 		</div>
 	</aside>
 </section>
@@ -311,7 +351,7 @@ The surface is interactive: drag it with the mouse to show the valley, zoom with
 <section>
 	<h3>The <em>proposal distribution</em> $P_{\boldsymbol{\theta}}$</h3>
 
-	<p>Multivariate Normal distributions is not always the right family of distributions to choose…</p>
+	<p>The multivariate normal distribution is not always the right family of distributions to choose…</p>
 
 	<!-- d3.js version of assets/optimization_cem/optimization_cem_mixture.png -->
 	<div class="r-stretch">
@@ -324,6 +364,8 @@ The surface is interactive: drag it with the mouse to show the valley, zoom with
 
 	<aside class="notes">
 		<div class="fr-notes">
+La famille de distributions doit être assez flexible pour capturer les caractéristiques pertinentes de la fonction objectif.
+Ici on montre les limites d'une loi normale sur une fonction objectif multimodale : elle place l'essentiel de sa densité entre les deux minima, alors qu'un modèle de mélange peut se centrer sur chacun d'eux.
 		</div>
 		<div class="en-notes">
 The distribution family should be flexible enough to capture the relevant features of the objective function.
@@ -340,52 +382,63 @@ The normal distribution is unable to capture multiple local minima, in contrast 
 
 	<p style="text-align: left;">
 		Meta parameters:
-		<ul style="display: block; text-align: left; margin: 0 0 0 2em;">
-			<li>The family of distribution probability $\mathbb{P}_{\boldsymbol{\theta}}$</li>
-			<li>The number of solutions to sample at each iteration</li>
-			<li>The number of best solutions selected at each iteration to update $\boldsymbol{\theta}$</li>
-		</ul>
 	</p>
+	<ul style="display: block; text-align: left; margin: 0 0 0 2em;">
+		<li>The family of probability distributions $\mathbb{P}$</li>
+		<li>The number of samples $m$ drawn at each iteration</li>
+		<li>The number of best samples $m_{\text{elite}}$ selected at each iteration to update $\boldsymbol{\theta}$</li>
+	</ul>
 
 	<br>
 
 	<p style="text-align: left;">
 		Termination criteria:
-		<ul style="display: block; text-align: left; margin: 0 0 0 2em;">
-			<li>Number of iterations</li>
-			<li>Value of $\boldsymbol{\theta}$</li>
-			<li>…</li>
-		</ul>
 	</p>
+	<ul style="display: block; text-align: left; margin: 0 0 0 2em;">
+		<li>Number of iterations</li>
+		<li>Convergence of $\boldsymbol{\theta}$ (e.g. $\operatorname{tr}(\ms{\Sigma})$ below a threshold)</li>
+		<li>…</li>
+	</ul>
 
 	<aside class="notes">
 		<div class="fr-notes">
+Récapitulatif des méta-paramètres et des critères d'arrêt usuels.
 		</div>
 		<div class="en-notes">
+Summary of the meta parameters and of the usual termination criteria.
 		</div>
 	</aside>
 </section>
 
-<section>
+<section style="font-size: 70%;">
 	<h3>Cross-Entropy Method</h3>
 
 	<p style="text-align: left;">Strengths:</p>
 	<ul style="display: block; text-align: left; margin: 0 0 0 2em;">
 		<li>Simplicity</li>
-		<li>Good convergence</li>
+		<li>Fast convergence on many practical problems</li>
+	</ul>
+
+	<p style="text-align: left;">Weaknesses:</p>
+	<ul style="display: block; text-align: left; margin: 0 0 0 2em;">
+		<li>Premature convergence: the variance can collapse too early (hence the noise added in the “noisy” CEM below)</li>
+		<li>Scales poorly to high dimensions ($\ms{\Sigma}$ has $O(n^2)$ parameters)</li>
+		<li>Sensitive to the choice of the distribution family and of $m$, $m_{\text{elite}}$</li>
 	</ul>
 
 	<br>
 
 	<p style="text-align: left;">
 		Example:<br>
-		I. Szita and A. Lorincz, <em>Learning Tetris Using the Noisy Cross-Entropy Method</em> (2006), Neural Computation <a href="https://www.academia.edu/download/31975697/SzitaLorincz05Learning.pdf">[PDF]</a>
+		I. Szita and A. Lőrincz, <em>Learning Tetris Using the Noisy Cross-Entropy Method</em> (2006), Neural Computation, 18(12), pp.2936–2941 <a href="https://doi.org/10.1162/neco.2006.18.12.2936">[DOI]</a>
 	</p>
 
 	<aside class="notes">
 		<div class="fr-notes">
+Le CEM « bruité » de Szita & Lőrincz ajoute du bruit à la covariance pour éviter la convergence prématurée — c'est l'exemple d'application le plus connu (Tetris).
 		</div>
 		<div class="en-notes">
+The “noisy” CEM of Szita & Lőrincz adds noise to the covariance to avoid premature convergence — the best-known application example (Tetris).
 		</div>
 	</aside>
 </section>
@@ -399,7 +452,7 @@ The normal distribution is unable to capture multiple local minima, in contrast 
 		<div style="float: left; width: 50%;">
 			<ul style="font-size: 0.6em;">
 				<li>
-					Rubinstein, R., 1999. The cross-entropy method for combinatorial and continuous optimization. <em>Methodology and computing in applied probability</em>, 1, pp.127-190.
+					Rubinstein, R., 1999. The cross-entropy method for combinatorial and continuous optimization. <em>Methodology and Computing in Applied Probability</em>, 1(2), pp.127–190.
 					[<a href="https://link.springer.com/content/pdf/10.1023/A:1010091220143.pdf">PDF</a>]
 				</li>
 				<li>
@@ -431,8 +484,10 @@ The normal distribution is unable to capture multiple local minima, in contrast 
 
 	<aside class="notes">
 		<div class="fr-notes">
+Références historiques : Rubinstein 1999/2001, puis le livre de référence Rubinstein & Kroese 2004.
 		</div>
 		<div class="en-notes">
+Historical references: Rubinstein 1999/2001, then the reference book by Rubinstein & Kroese 2004.
 		</div>
 	</aside>
 </section>

@@ -1,14 +1,12 @@
 <!doctype html>
 <html lang="en">
 
-	<!-- optimization_cem_v3.html — troisième version du deck CEM. Comme la v2
-	     (dont ce deck est issu), les figures « CEM sur Rosenbrock » sont dessinées
-	     à la volée avec d3.js ; mais au lieu de lire des données précalculées dans
-	     un JSON (générées hors-ligne), l'exécution du CEM est recalculée au
-	     chargement de la page par une implémentation TypeScript de l'algorithme
-	     (assets/optimization_cem/cem.ts), avec une seed de random fixée pour
-	     que les figures soient parfaitement reproductibles.
-	     Voir assets/optimization_cem/README.md. -->
+	<!-- optimization_cem.html — deck CEM (issu de l'ancienne optimization_cem_v3.html).
+	     Les figures « CEM sur Rosenbrock » sont dessinées à la volée avec d3.js ;
+	     l'exécution du CEM est recalculée au chargement de la page par une
+	     implémentation TypeScript de l'algorithme (assets/optimization_cem/cem.ts),
+	     avec une seed de random fixée pour que les figures soient parfaitement
+	     reproductibles. Voir assets/optimization_cem/README.md. -->
 
 	<head>
 		<meta charset="utf-8">
@@ -29,6 +27,10 @@
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="dist/plugin/highlight/monokai.css" id="highlight-theme">
+
+		<!-- Shared styling/behavior of the personal decks (draft highlighting,
+		     speaker-notes language filtering .fr-notes/.en-notes) -->
+		<link rel="stylesheet" href="jdhp.css">
 
 	</head>
 
@@ -51,7 +53,7 @@
 						Jérémie Decock
 					</p>
 					<p>
-						17/12/2022
+						12/07/2026
 					</p>
 
 					<!-- Macros definition -->
@@ -61,9 +63,12 @@
 					$$
 
 					<aside class="notes">
-						<ul>
-							<li>...</li>
-						</ul>
+						<div class="fr-notes">
+Présentation de la Cross-Entropy Method (CEM), un algorithme d'optimisation boîte noire fondé sur une distribution de proposition réajustée itérativement.
+						</div>
+						<div class="en-notes">
+Presentation of the Cross-Entropy Method (CEM), a black-box optimization algorithm based on an iteratively refitted proposal distribution.
+						</div>
 					</aside>
 				</section>
 
@@ -145,6 +150,9 @@
 			});
 
 		</script>
+
+		<!-- jdhp.js doit être référencé après tous les autres scripts -->
+		<script src="jdhp.js"></script>
 
 	</body>
 
