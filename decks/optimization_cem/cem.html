@@ -194,19 +194,21 @@ The surface is interactive: drag it with the mouse to show the valley, zoom with
 		<li>Update the proposal distribution to fit the best samples</li>
 	</ol> -->
 
-	<!-- Figures d3.js statiques, données calculées à la volée par le CEM de cem.ts (seed fixée) -->
+	<!-- Figures d3.js statiques, données calculées à la volée par le CEM de cem.ts (seed fixée).
+			Phase "proposal" : seules les ellipses de la distribution au début de l'itération k sont
+			tracées (pas d'échantillons), pour montrer lisiblement son évolution. -->
 	<div class="r-vstack" style="padding: 0;">
 		<div class="r-hstack">
-			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="1" data-phase="fit"></svg>
-			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="2" data-phase="fit"></svg>
-			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="3" data-phase="fit"></svg>
-			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="4" data-phase="fit"></svg>
+			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="1" data-phase="proposal"></svg>
+			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="2" data-phase="proposal"></svg>
+			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="3" data-phase="proposal"></svg>
+			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="4" data-phase="proposal"></svg>
 		</div>
 		<div class="r-hstack">
-			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="5" data-phase="fit"></svg>
-			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="6" data-phase="fit"></svg>
-			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="7" data-phase="fit"></svg>
-			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="8" data-phase="fit"></svg>
+			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="5" data-phase="proposal"></svg>
+			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="6" data-phase="proposal"></svg>
+			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="7" data-phase="proposal"></svg>
+			<svg class="cem-rosenbrock-fig" width="235" height="224" data-iteration="8" data-phase="proposal"></svg>
 		</div>
 	</div>
 	<script type="module" src="assets/optimization_cem/cem_rosenbrock.ts"></script>
