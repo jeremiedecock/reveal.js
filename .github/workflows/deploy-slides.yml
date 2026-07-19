@@ -20,11 +20,15 @@
 # renders identically at the site root and under a <branch>/ subdirectory. See
 # DEPLOIEMENT.md at the repo root for the full explanation and the design history.
 #
-# No repository setup is needed: the last step checks through the Pages API that the
-# site is enabled and serves the gh-pages branch ("Deploy from a branch" mode), and
-# enables/repoints it if not. Equivalent manual setting, should that API call ever be
-# denied: Settings → Pages → Build and deployment → Source: "Deploy from a branch",
-# Branch: gh-pages / (root).
+# The workflow adapts to the repository's Pages "Source" setting (Settings → Pages →
+# Build and deployment), which its token is not allowed to change (admin-only API):
+#   - "GitHub Actions": nothing watches the gh-pages branch, so the last steps upload
+#     the assembled site as a Pages artifact and deploy it explicitly;
+#   - "Deploy from a branch" (gh-pages / root): GitHub rebuilds the site from the
+#     branch on its own — the artifact steps are skipped, the push is the publication.
+# Both work; the branch setting just skips a ~0.5 GB artifact upload per run. If the
+# artifact deployment is rejected by "environment protection rules", allow all branches
+# on the github-pages environment (Settings → Environments → No restriction).
 name: Deploy slides to GitHub Pages
 
 on:
@@ -40,8 +44,9 @@ on:
 
 permissions:
   contents: write
-  # Needed to read/enable/fix the Pages configuration through the API
+  # Needed to read the Pages configuration and deploy the site artifact
   pages: write
+  id-token: write
 
 # One deployment at a time (runs rewrite the shared gh-pages branch); let in-flight
 # deployments finish
@@ -128,47 +133,37 @@ jobs:
             git commit -q --allow-empty -m "$message"
           fi
           git push -q --force origin gh-pages
-      # Pushing gh-pages only publishes anything if the repository's Pages site is
-      # enabled and configured to serve that branch. That used to be a one-time manual
-      # setting, easy to forget on a fresh fork — in which case every run above succeeds
-      # while nothing ever goes online. Enforce the configuration here instead.
-      - name: Make sure GitHub Pages serves the gh-pages branch
+      # Pushing gh-pages only publishes anything if the Pages "Source" setting is
+      # "Deploy from a branch" pointed at it. On this repository the setting is
+      # "GitHub Actions" (and the workflow token cannot change it — the Pages config
+      # API answers "Resource not accessible by integration"), in which case the push
+      # publishes nothing and the site must be deployed as a Pages artifact instead.
+      - name: Check how Pages publishes
+        id: pages
         env:
           GH_TOKEN: ${{ github.token }}
-          API: https://api.github.com/repos/${{ github.repository }}/pages
         run: |
           set -eu
-          call() {
-            curl -sS -o "$RUNNER_TEMP/pages-api.json" -w '%{http_code}' -X "$1" \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              ${2:+-d "$2"} "$API${3:-}"
-          }
-          config='{"build_type":"legacy","source":{"branch":"gh-pages","path":"/"}}'
-          code=$(call GET)
+          code=$(curl -sS -o "$RUNNER_TEMP/pages-config.json" -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/pages")
           if [ "$code" = 200 ] \
-             && [ "$(jq -r '"\(.build_type) \(.source.branch)"' "$RUNNER_TEMP/pages-api.json")" = "legacy gh-pages" ]; then
-            echo "Pages already serves the gh-pages branch: the push above is enough."
-            exit 0
-          fi
-          if [ "$code" = 404 ]; then
-            echo "Pages is not enabled on this repository: enabling it on the gh-pages branch"
-            code=$(call POST "$config"); expected=201
-          elif [ "$code" = 200 ]; then
-            echo "Pages does not serve the gh-pages branch: repointing it"
-            code=$(call PUT "$config"); expected=204
+             && [ "$(jq -r '"\(.build_type) \(.source.branch)"' "$RUNNER_TEMP/pages-config.json")" = "legacy gh-pages" ]; then
+            echo "Pages serves the gh-pages branch: the push above is the publication."
+            echo "mode=branch" >> "$GITHUB_OUTPUT"
           else
-            cat "$RUNNER_TEMP/pages-api.json"; echo
-            echo "::error::Could not read the Pages configuration (HTTP $code)"
-            exit 1
+            echo "Pages does not serve the gh-pages branch (HTTP $code): deploying the site as a Pages artifact."
+            echo "mode=artifact" >> "$GITHUB_OUTPUT"
           fi
-          if [ "$code" != "$expected" ]; then
-            cat "$RUNNER_TEMP/pages-api.json"; echo
-            echo "::error::Could not configure Pages (HTTP $code). Set it manually once:" \
-              "Settings → Pages → Source \"Deploy from a branch\", branch gh-pages / (root)."
-            exit 1
-          fi
-          # gh-pages was pushed before Pages watched the branch: queue the first build
-          call POST '' /builds > /dev/null
-          echo "Pages now serves the gh-pages branch; first site build queued."
+      - name: Package the site for Pages
+        if: steps.pages.outputs.mode == 'artifact'
+        # The site directory is a git clone of gh-pages; publish the tree, not the repo
+        run: rm -rf "$RUNNER_TEMP/site/.git"
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.pages.outputs.mode == 'artifact'
+        with:
+          path: ${{ runner.temp }}/site
+      - uses: actions/deploy-pages@v4
+        if: steps.pages.outputs.mode == 'artifact'

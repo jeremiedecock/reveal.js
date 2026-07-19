@@ -32,7 +32,8 @@ ou sous un sous-répertoire `<branche>/`.
 ## Comment ça marche (déploiement incrémental via la branche `gh-pages`)
 
 Le site publié vit dans la branche orpheline **`gh-pages`** (créée automatiquement au
-premier run du workflow), et GitHub Pages est configuré pour servir cette branche. À
+premier run du workflow), qui sert de stockage incrémental entre les runs ; sa mise en
+ligne dépend de la source Pages configurée (voir « Réglages GitHub » plus bas). À
 chaque push sur une branche quelconque, le workflow :
 
 1. **ne construit que la branche pushée** (`npm ci` + `npm run build:decks`, comme en
@@ -44,8 +45,11 @@ chaque push sur une branche quelconque, le workflow :
 3. **élague** les répertoires des branches qui n'existent plus sur le repo (l'événement
    `delete` déclenche aussi le workflow, donc l'élagage est immédiat) ;
 4. commite et pousse `gh-pages` ;
-5. **vérifie que GitHub Pages est bien activé** sur la branche `gh-pages`, et l'active ou
-   le reconfigure via l'API sinon (voir « Réglages GitHub » ci-dessous).
+5. **publie** : si la source Pages du dépôt est « Deploy from a branch » (`gh-pages`),
+   le push précédent suffit (GitHub reconstruit le site tout seul) ; sinon — cas de la
+   source « GitHub Actions », réglage actuel du dépôt — le workflow téléverse le site
+   assemblé comme artefact Pages et le déploie explicitement (voir « Réglages GitHub »
+   ci-dessous).
 
 Détails d'implémentation utiles à connaître :
 
@@ -75,26 +79,32 @@ Détails d'implémentation utiles à connaître :
 
 ## Réglages GitHub
 
-**Aucun réglage manuel n'est nécessaire.** Pousser sur `gh-pages` ne publie quelque chose
-que si le site Pages du dépôt est activé et configuré en « Deploy from a branch » sur
-cette branche ; c'était à l'origine un réglage manuel « une seule fois », jamais appliqué
-sur ce dépôt — tous les runs se terminaient donc en succès alors que rien n'était jamais
-mis en ligne (symptôme : aucun run « pages build and deployment » dans l'onglet Actions,
-c'est le workflow interne que GitHub déclenche à chaque push sur la branche servie). La
-dernière étape du workflow impose désormais cette configuration à chaque run via l'API
-Pages : elle active le site s'il ne l'est pas (cas d'un dépôt/fork neuf) et repointe la
-source si elle a changé (par exemple l'ancienne configuration « Source : GitHub
-Actions » — voir l'historique plus bas).
+**Aucun réglage n'est nécessaire dans le cas général** : le workflow lit la source Pages
+du dépôt (Settings → Pages → Build and deployment → Source) à chaque run et s'y adapte —
 
-Si cet appel API venait à être refusé, le run échoue avec un message explicite ; le
-réglage manuel équivalent est **Settings → Pages → Build and deployment → Source :
-« Deploy from a branch », Branch : `gh-pages` / `(root)`** (la branche `gh-pages` doit
-exister pour apparaître dans le menu : elle est créée par le premier run du workflow).
+- **« GitHub Actions »** (réglage actuel du dépôt) : rien ne surveille la branche
+  `gh-pages`, le workflow téléverse donc le site assemblé comme artefact Pages et le
+  déploie explicitement (`actions/upload-pages-artifact` + `actions/deploy-pages`) ;
+- **« Deploy from a branch », `gh-pages` / `(root)`** : GitHub reconstruit le site tout
+  seul à chaque push sur `gh-pages` ; le workflow le détecte et saute le téléversement.
+  Ce réglage économise ~0,5 Go d'artefact par déploiement — le faire une fois à la main
+  est donc *recommandé*, mais pas indispensable.
 
-L'ancienne recommandation de mettre l'environnement `github-pages` en « No restriction »
-n'est plus nécessaire avec cette approche (le workflow n'utilise plus d'environnement de
-déploiement, seulement les permissions `contents: write` et `pages: write` qu'il déclare
-lui-même).
+Pourquoi une détection plutôt qu'une configuration : repointer la source via l'API Pages
+est une opération réservée aux administrateurs — le `GITHUB_TOKEN` d'un workflow reçoit
+« Resource not accessible by integration » (HTTP 403) même avec la permission
+`pages: write`. Le workflow ne peut donc pas imposer le réglage, seulement s'y adapter.
+C'est ce qui expliquait l'absence totale de publication : la bascule manuelle vers
+« Deploy from a branch » prévue par l'approche incrémentale n'avait jamais été faite (la
+source était restée « GitHub Actions »), les pushes sur `gh-pages` ne déclenchaient donc
+rien (symptôme : aucun run « pages build and deployment » dans l'onglet Actions), et
+plus aucun artefact n'était déployé depuis l'abandon de l'approche n° 2 — tous les runs
+verts, site jamais mis en ligne.
+
+Si le déploiement par artefact échoue avec « Branch … is not allowed to deploy to
+github-pages due to environment protection rules », mettre l'environnement
+`github-pages` en « No restriction » (Settings → Environments) : le déploiement doit
+pouvoir partir de n'importe quelle branche, pas seulement de `master`.
 
 ## Points d'attention
 
