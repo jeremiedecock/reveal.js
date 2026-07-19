@@ -43,7 +43,9 @@ chaque push sur une branche quelconque, le workflow :
    autres ;
 3. **élague** les répertoires des branches qui n'existent plus sur le repo (l'événement
    `delete` déclenche aussi le workflow, donc l'élagage est immédiat) ;
-4. commite et pousse `gh-pages`.
+4. commite et pousse `gh-pages` ;
+5. **vérifie que GitHub Pages est bien activé** sur la branche `gh-pages`, et l'active ou
+   le reconfigure via l'API sinon (voir « Réglages GitHub » ci-dessous).
 
 Détails d'implémentation utiles à connaître :
 
@@ -71,20 +73,28 @@ Détails d'implémentation utiles à connaître :
   les pushes qui ne modifient que `archives/**` (`paths-ignore`), pour ne pas payer un
   build qui ne peut rien changer au site.
 
-## Réglages GitHub (une seule fois)
+## Réglages GitHub
 
-**Settings → Pages → Build and deployment → Source : « Deploy from a branch »,
-Branch : `gh-pages` / `(root)`.**
+**Aucun réglage manuel n'est nécessaire.** Pousser sur `gh-pages` ne publie quelque chose
+que si le site Pages du dépôt est activé et configuré en « Deploy from a branch » sur
+cette branche ; c'était à l'origine un réglage manuel « une seule fois », jamais appliqué
+sur ce dépôt — tous les runs se terminaient donc en succès alors que rien n'était jamais
+mis en ligne (symptôme : aucun run « pages build and deployment » dans l'onglet Actions,
+c'est le workflow interne que GitHub déclenche à chaque push sur la branche servie). La
+dernière étape du workflow impose désormais cette configuration à chaque run via l'API
+Pages : elle active le site s'il ne l'est pas (cas d'un dépôt/fork neuf) et repointe la
+source si elle a changé (par exemple l'ancienne configuration « Source : GitHub
+Actions » — voir l'historique plus bas).
 
-La branche `gh-pages` doit exister pour apparaître dans le menu : lancer d'abord le
-workflow une fois (un push suffit, ou Actions → « Deploy slides to GitHub Pages » →
-« Run workflow »).
+Si cet appel API venait à être refusé, le run échoue avec un message explicite ; le
+réglage manuel équivalent est **Settings → Pages → Build and deployment → Source :
+« Deploy from a branch », Branch : `gh-pages` / `(root)`** (la branche `gh-pages` doit
+exister pour apparaître dans le menu : elle est créée par le premier run du workflow).
 
-C'est un *changement* par rapport à la configuration précédente (« Source : GitHub
-Actions ») — voir l'historique plus bas. L'ancienne recommandation de mettre
-l'environnement `github-pages` en « No restriction » n'est plus nécessaire avec cette
-approche (le workflow n'utilise plus d'environnement de déploiement, seulement la
-permission `contents: write` qu'il déclare lui-même).
+L'ancienne recommandation de mettre l'environnement `github-pages` en « No restriction »
+n'est plus nécessaire avec cette approche (le workflow n'utilise plus d'environnement de
+déploiement, seulement les permissions `contents: write` et `pages: write` qu'il déclare
+lui-même).
 
 ## Points d'attention
 
